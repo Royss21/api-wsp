@@ -1,42 +1,43 @@
-import { Controller, Get, Query } from '@nestjs/common';
-import { InjectConnection } from '@nestjs/mongoose';
-import { Connection } from 'mongoose';
-import { WspAppInstance, WspGlobalInstance } from 'src/classes';
-import { Config as config } from '../../core/config/config';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { InstanceService } from './instance.service';
 
 @Controller('instance')
 export class InstanceController {
-  constructor(
-    @InjectConnection() private connection: Connection,
-    private readonly instanceService: InstanceService,
-  ) {}
+  constructor(private readonly instanceService: InstanceService) {}
 
   @Get('create')
   async create(@Query('key') key: string) {
-    const data = new WspAppInstance(this.connection, key);
-    const instance = await data.init();
-
-    WspGlobalInstance[data.key] = instance;
-
-    return {
-      error: false,
-      message: 'Initializing successfully',
-      key: data.key,
-      // webhook: {
-      //     enabled: data.webhook,
-      //     webhookUrl: data.we,
-      // },
-      qrcode: {
-        qrString: '',
-      },
-      browser: config.browser,
-    };
+    const instanceKey = await this.instanceService.create(key);
+    return instanceKey;
   }
 
-  @Get('qr')
-  async qr(@Query('key') key: string) {
-    const qr = WspGlobalInstance[key].instance.qr;
+  @Get('qrbase64/:key')
+  async qrBase64(@Param('key') key: string) {
+    const qr = await this.instanceService.qrBase64(key);
     return { qr };
+  }
+
+  @Get('info/:key')
+  async info(@Param('key') key: string) {
+    const info = await this.instanceService.info(key);
+    return info;
+  }
+
+  @Get('logout/:key')
+  async logout(@Param('key') key: string) {
+    await this.instanceService.logout(key);
+    return true;
+  }
+
+  // @Get('delete/:key')
+  // async delete(@Param('key') key: string) {
+  //   await this.instanceService.delete(key);
+  //   return true;
+  // }
+
+  @Get('list')
+  async list(@Query('active') active: string) {
+    const instances = await this.instanceService.list(active);
+    return instances;
   }
 }
