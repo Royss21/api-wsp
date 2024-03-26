@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div>
+      <input type="text" id="key" />
+      <button type="button" id="btnQr">ver qr</button>
+    </div>
+
+    <img src="" alt="" class="qr-image" />
+
+    <script>
+      const btn = document.querySelector("#btnQr");
+      const txt = document.querySelector("#key");
+      const img = document.querySelector(".qr-image");
+
+      btn.addEventListener("click", () => {
+        fetch(`http://localhost:3001/api/v1/instance/qrbase64/${txt.value}`)
+          .then((r) => r.json())
+          .then((d) => {         
+            img.src = d.qr;
+          });
+      });
+    </script>
+  </body>
+</html>
