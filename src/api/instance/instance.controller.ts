@@ -1,6 +1,8 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { InstanceService } from './instance.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Instance')
 @Controller('instance')
 export class InstanceController {
   constructor(private readonly instanceService: InstanceService) {}
@@ -29,6 +31,12 @@ export class InstanceController {
     return true;
   }
 
+  @Get('restore-instances')
+  async restoreInstances() {
+    await this.instanceService.restoreInstances();
+    return true;
+  }
+
   // @Get('delete/:key')
   // async delete(@Param('key') key: string) {
   //   await this.instanceService.delete(key);
@@ -37,7 +45,7 @@ export class InstanceController {
 
   @Get('list')
   async list(@Query('active') active: string) {
-    const instances = await this.instanceService.list(active);
+    const instances = await this.instanceService.list((active === 'true'));
     return instances;
   }
 }

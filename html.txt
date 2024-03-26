@@ -7,6 +7,72 @@
   </head>
   <body>
     <div>
+      <label for="">Numero de telefono</label>
+      <input type="text" id="telefono" placeholder="51980444507" />
+      <textarea name="" id="mensaje" cols="30" rows="10" placeholder="Ingrese el mensaje..."
+      ></textarea>
+      <label for="">Seleccione el canal</label>
+      <select name="cboCanal" id="cboCanal">
+        <option value="canal1">canal1</option>
+        <option value="canal2">canal2</option>
+        <option value="canal3">canal3</option>
+      </select>
+
+      <button type="button" id="btnEnviar">Enviar</button>
+
+      <hr>
+      <code class="respuestaJson">
+
+      </code>
+    </div>
+
+    <img src="" alt="" class="qr-image" />
+
+    <script>
+      const txt = document.querySelector("#telefono");
+      const btnEnviar = document.querySelector("#btnEnviar");
+      const mensaje = document.querySelector("#mensaje");
+      const cboCanal = document.querySelector("#cboCanal");
+      const respuestaJson = document.querySelector(".respuestaJson");
+
+      btnEnviar.addEventListener("click", () => {
+
+        const json = JSON.stringify(({
+            id: txt.value,
+            message: mensaje.value
+          }))
+
+        fetch(`https://794d-190-216-168-100.ngrok-free.app/api/v1/message/${cboCanal.value}/text`,
+        {
+          method: 'POST',
+          body: json,
+          headers: {
+            "Content-Type":"application/json"
+          }
+        }
+        )
+          .then((r) => r.json())
+          .then((d) => {         
+            respuestaJson.innerHTML = JSON.stringify(d.data);
+          });
+      });
+    </script>
+  </body>
+</html>
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div>
       <input type="text" id="key" />
       <button type="button" id="btnQr">ver qr</button>
     </div>

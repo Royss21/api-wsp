@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { WspAppInstance, WspGlobalInstance } from 'src/classes';
+import { restoreSessions } from 'src/core/helpers';
 
 @Injectable()
 export class InstanceService {
@@ -32,6 +33,15 @@ export class InstanceService {
     }
   }
 
+  async restoreInstances(): Promise<any> {
+    try {
+      const restoredSessions = await restoreSessions(this.connection);
+      return restoredSessions;
+    } catch (error) {
+      console.log({ error });
+    }
+  }
+
   async logout(key: string): Promise<void> {
     try {
       await WspGlobalInstance[key].instance?.sock?.logout();
@@ -49,21 +59,19 @@ export class InstanceService {
     }
   }
 
-  async list(active: string) {
-    console.log({ active });
-    // if (active == 'true') {
-    //   const result = await this.connection.listCollections();
-    //   return {
-    //     ok: true,
-    //     message: 'All active instance',
-    //     data: result.map((collection) => collection.name),
-    //   };
-    // }
+  async list(active: boolean) {
+    if (active) {
+      const result = await this.connection.listCollections();
+      return {
+        ok: true,
+        message: 'All active instance',
+        data: result.map((collection) => collection.name),
+      };
+    }
 
     const instance = Object.keys(WspGlobalInstance).map(async (key) =>
       WspGlobalInstance[key].getInstanceDetail(key),
     );
-
     const instances = await Promise.all(instance);
 
     return {

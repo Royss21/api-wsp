@@ -6,9 +6,8 @@ import { SocketConfig, WABrowserDescription } from '@adiwajshing/baileys';
 import { DisconnectReason, makeWASocket } from '@adiwajshing/baileys';
 
 import { Config as config } from '../core/config/config';
-import { useMongoDBAuthState } from 'src/core/states/mongo-auth.state';
 import { Chat, IWspInstance, WspInstance } from './';
-import { downloadMessage } from '../core/helpers';
+import { downloadMessage, mongoDBAuthState } from '../core/helpers';
 
 export class WspAppInstance {
   socketConfig: SocketConfig = {
@@ -56,7 +55,7 @@ export class WspAppInstance {
 
   async init() {
     this.collection = this.connection.collection(this.key);
-    const { state, saveCreds } = await useMongoDBAuthState(this.collection);
+    const { state, saveCreds } = await mongoDBAuthState(this.collection);
 
     this.authState = { state: state, saveCreds: saveCreds };
     this.socketConfig.auth = this.authState.state;
@@ -208,10 +207,10 @@ export class WspAppInstance {
       });
     });
 
-    // on new mssage
+    // on new message
     sock?.ev.on('messages.upsert', async (m) => {
       //console.log('messages.upsert')
-      //console.log(m)
+      console.log('messages.upsert',{ m })
       if (m.type === 'prepend') this.instance.messages.unshift(...m.messages);
       if (m.type !== 'notify') return;
 
@@ -285,6 +284,7 @@ export class WspAppInstance {
     sock?.ev.on('messages.update', async (messages) => {
       console.log({ messages });
     });
+
     sock?.ws.on('CB:call', async (data) => {
       if (data.content) {
         if (data.content.find((e) => e.tag === 'offer')) {
