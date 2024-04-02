@@ -17,11 +17,7 @@ export const restoreSessions = async (connection: Connection) => {
                 .collection(key)
                 .find({})
                 .toArray();
-            console.log({instances});
 
-            // for (const item of instances) {
-            //     console.log({item});
-            // }
             const instance = new WspAppInstance(connection, key);
             await instance.init()
             WspGlobalInstance[key] = instance

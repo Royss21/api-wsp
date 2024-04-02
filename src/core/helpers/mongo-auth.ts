@@ -54,7 +54,7 @@ const BufferJSON = {
 }
 
 export const mongoDBAuthState = async (collection: Collection) => {
-    // console.log("colleccion ",collection)
+   
      const writeData = (data, id) => {
          return collection.replaceOne(
              { _id: id },

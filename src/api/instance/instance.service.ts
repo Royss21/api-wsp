@@ -28,7 +28,7 @@ export class InstanceService {
     try {
       return await instance.getInstanceDetail(key);
     } catch (error) {
-      console.log({ error });
+      console.log('info', { error });
       return {};
     }
   }
@@ -38,7 +38,7 @@ export class InstanceService {
       const restoredSessions = await restoreSessions(this.connection);
       return restoredSessions;
     } catch (error) {
-      console.log({ error });
+      console.log('restoreInstances', { error });
     }
   }
 
@@ -47,7 +47,7 @@ export class InstanceService {
       await WspGlobalInstance[key].instance?.sock?.logout();
       delete WspGlobalInstance[key];
     } catch (error) {
-      console.log({ error });
+      console.log('logout', { error });
     }
   }
 
@@ -55,7 +55,7 @@ export class InstanceService {
     try {
       await WspGlobalInstance[key].deleteInstance(key);
     } catch (error) {
-      console.log({ error });
+      console.log('delete', { error });
     }
   }
 
