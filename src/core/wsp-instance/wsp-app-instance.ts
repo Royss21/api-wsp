@@ -5,9 +5,9 @@ import * as QRCode from 'qrcode';
 import { SocketConfig, WABrowserDescription } from '@adiwajshing/baileys';
 import { DisconnectReason, makeWASocket } from '@adiwajshing/baileys';
 
-import { Config as config } from '../core/config/config';
-import { Chat, IWspInstance, WspInstance } from './';
-import { downloadMessage, mongoDBAuthState } from '../core/helpers';
+import { Config as config } from '../config/config';
+import { Chat, IWspInstance } from './';
+import { downloadMessage, mongoDBAuthState } from '../helpers';
 
 export class WspAppInstance {
   socketConfig: SocketConfig = {
@@ -74,7 +74,7 @@ export class WspAppInstance {
 
     // on socket closed, opened, connecting
     sock?.ev.on('connection.update', async (update) => {
-      console.log('connection.update', {update});
+      console.log('connection.update', { update });
 
       const { connection, lastDisconnect, qr } = update;
 
@@ -150,7 +150,7 @@ export class WspAppInstance {
 
     // sending presence
     sock?.ev.on('presence.update', async (json) => {
-      console.log('presence.update',{json});
+      console.log('presence.update', { json });
       if (
         ['all', 'presence', 'presence.update'].some((e) =>
           config.webhookAllowedEvents.includes(e),
@@ -161,7 +161,7 @@ export class WspAppInstance {
 
     // on receive all chats
     sock?.ev.on('chats.set', async ({ chats }) => {
-      console.log('chats.set',{chats});
+      console.log('chats.set', { chats });
       this.instance.chats = [];
       const recivedChats = chats.map((chat) => {
         return {
@@ -176,7 +176,7 @@ export class WspAppInstance {
 
     // on recive new chat
     sock?.ev.on('chats.upsert', (newChat) => {
-      console.log('chats.upsert', {newChat})
+      console.log('chats.upsert', { newChat });
       const chats = newChat.map((chat) => {
         return {
           ...chat,
@@ -188,8 +188,8 @@ export class WspAppInstance {
 
     // on chat change
     sock?.ev.on('chats.update', (changedChat) => {
-      console.log('chats.update', {changedChat})
-    
+      console.log('chats.update', { changedChat });
+
       changedChat.map((chat) => {
         const index = this.instance.chats.findIndex((pc) => pc.id === chat.id);
         const PrevChat = this.instance.chats[index];
@@ -202,7 +202,7 @@ export class WspAppInstance {
 
     // on chat delete
     sock?.ev.on('chats.delete', (deletedChats) => {
-      console.log('chats.delete', {deletedChats})
+      console.log('chats.delete', { deletedChats });
       deletedChats.map((chat) => {
         const index = this.instance.chats.findIndex((c) => c.id === chat);
         this.instance.chats.splice(index, 1);
@@ -211,8 +211,7 @@ export class WspAppInstance {
 
     // on new message
     sock?.ev.on('messages.upsert', async (m) => {
-      
-      console.log('messages.upsert',{ message: m.messages[0] })
+      console.log('messages.upsert', { message: m.messages[0] });
 
       if (m.type === 'prepend') this.instance.messages.unshift(...m.messages);
       if (m.type !== 'notify') return;
@@ -336,7 +335,7 @@ export class WspAppInstance {
     });
 
     sock?.ev.on('groups.upsert', async (newChat) => {
-      console.log('groups.upsert', {newChat})
+      console.log('groups.upsert', { newChat });
       this.createGroupByApp(newChat);
       if (
         ['all', 'groups', 'groups.upsert'].some((e) =>
@@ -353,7 +352,7 @@ export class WspAppInstance {
     });
 
     sock?.ev.on('groups.update', async (newChat) => {
-      console.log('groups.update', {newChat})
+      console.log('groups.update', { newChat });
       this.updateGroupSubjectByApp(newChat);
       if (
         ['all', 'groups', 'groups.update'].some((e) =>
@@ -369,20 +368,20 @@ export class WspAppInstance {
         );
     });
 
-    sock?.ev.on("contacts.update", async (contacts) => {
-      console.log('contacts.update',{contacts});
+    sock?.ev.on('contacts.update', async (contacts) => {
+      console.log('contacts.update', { contacts });
     });
 
     sock?.ev.on('contacts.set', (s) => {
-      console.log('contacts.set', Object.values(s))
-    })
+      console.log('contacts.set', Object.values(s));
+    });
 
-    sock?.ev.on("messaging-history.set", async (history) => {
-      console.log('messaging-history.set',{history});
+    sock?.ev.on('messaging-history.set', async (history) => {
+      console.log('messaging-history.set', { history });
     });
 
     sock?.ev.on('group-participants.update', async (newChat) => {
-      console.log('group-participants.update', {newChat})
+      console.log('group-participants.update', { newChat });
       this.updateGroupParticipantsByApp(newChat);
       if (
         [
@@ -505,12 +504,11 @@ export class WspAppInstance {
   // }
 
   async sendContactMessage(number, message) {
-  
     const numberWA = number + '@s.whatsapp.net';
     //const numberWA = '591' + number + '@s.whatsapp.net'
     //  const numberWA = '591' + '67511387' + '@s.whatsapp.net'
     //    await this.verifyId(this.getWhatsAppId(to))
-   
+
     //  const vcard = generateVC(data)
     const exists = await this.instance.sock?.onWhatsApp(numberWA);
 
@@ -583,7 +581,6 @@ export class WspAppInstance {
       const res = await this.instance.sock?.updateProfilePicture(id, img.data);
       return res;
     } catch (e) {
-    
       return {
         error: true,
         message: 'Unable to update profile picture',
@@ -644,7 +641,6 @@ export class WspAppInstance {
   // }
 
   async createNewGroup(name, users) {
-    
     try {
       const group = await this.instance.sock?.groupCreate('My Fab Group', [
         '59167511387:2@s.whatsapp.net',
@@ -657,7 +653,6 @@ export class WspAppInstance {
       return group;
     } catch (e) {
       ////logger.error(e)
-    
       ////logger.error('Error create new group failed')
     }
   }
@@ -712,7 +707,7 @@ export class WspAppInstance {
 
   async getAllGroups() {
     let Chats = await this.getChat();
- 
+
     return Chats.filter((c) => c.id.includes('@g.us')).map((data, i) => {
       return {
         index: i,
@@ -787,7 +782,6 @@ export class WspAppInstance {
   }
 
   async updateGroupSubjectByApp(newChat) {
-    
     try {
       if (newChat[0] && newChat[0].subject) {
         let Chats = await this.getChat();
@@ -801,7 +795,6 @@ export class WspAppInstance {
   }
 
   async updateGroupParticipantsByApp(newChat) {
-  
     try {
       if (newChat && newChat.id) {
         let Chats = await this.getChat();
@@ -879,7 +872,6 @@ export class WspAppInstance {
       );
       return res;
     } catch (e) {
-      
       return {
         error: true,
         message:
@@ -900,7 +892,6 @@ export class WspAppInstance {
       );
       return res;
     } catch (e) {
-     
       return {
         error: true,
         message: 'unable to ' + action + ' check if you are admin in group',
@@ -916,7 +907,6 @@ export class WspAppInstance {
       );
       return res;
     } catch (e) {
-   
       return {
         error: true,
         message: 'unable to update subject check if you are admin in group',
@@ -978,5 +968,30 @@ export class WspAppInstance {
     } catch (e) {
       //logger.error('Error react message failed')
     }
+  }
+}
+
+export class WspInstance implements IWspInstance {
+  key: string = '';
+  chats: any[] = [];
+  qr: string = '';
+  messages: any[] = [];
+  qrRetry: number = 0;
+  customWebhook: string = '';
+  sock: any;
+  online: boolean;
+
+  constructor(key: string, customWehbook: string = '') {
+    this.key = key;
+    this.customWebhook = customWehbook;
+    this.qrRetry = 0;
+    this.key = '';
+    this.chats = [];
+    this.qr = '';
+    this.messages = [];
+    this.qrRetry = 0;
+    this.sock = {};
+    this.customWebhook = '';
+    this.online = false;
   }
 }

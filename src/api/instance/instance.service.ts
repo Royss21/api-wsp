@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { WspAppInstance, WspGlobalInstance } from 'src/classes';
+import { WspAppInstance, WspGlobalInstance } from 'src/core/wsp-instance';
 import { restoreSessions } from 'src/core/helpers';
 
 @Injectable()

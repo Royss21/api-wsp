@@ -1,6 +1,6 @@
 import { UpdateResult } from "mongodb";
 
-export interface IMongoAuthState {
+export interface IWspAuthState {
     state: {
         creds: any;
         keys: {

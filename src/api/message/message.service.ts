@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { WspGlobalInstance } from 'src/classes';
+import { WspGlobalInstance } from 'src/core/wsp-instance';
 import { MessageDto } from './dtos/message.dto';
-import { dataWsp } from "./dtos/data";
+import { dataWsp } from './dtos/data';
 
 function delay(t) {
   return new Promise((resolve) => setTimeout(resolve, t));
