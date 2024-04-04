@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 import { ContactService } from './contact.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
@@ -13,8 +22,8 @@ export class ContactController {
   }
 
   @Get()
-  findAll() {
-    return this.contactService.findAll();
+  findAll(paginationDto: PaginationDto) {
+    return this.contactService.findAll(paginationDto);
   }
 
   @Get(':id')
