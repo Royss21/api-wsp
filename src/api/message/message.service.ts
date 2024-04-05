@@ -8,42 +8,20 @@ function delay(t) {
 }
 
 function generarNumeroAleatorio() {
-  return Math.floor(Math.random() * (15000 - 5000 + 1)) + 5000;
+  return Math.floor(Math.random() * (20000 - 15000 + 1)) + 15000;
 }
 
 @Injectable()
 export class MessageService {
   async sendBulkMessage(key: string) {
     const dataError = [];
-    // const dataWsp = [
-    //   {
-    //     nombre: 'CARLOS',
-    //     celular: 989189692,
-    //     sexo: null,
-    //   },
-    //   {
-    //     nombre: 'CARLOS',
-    //     celular: 989189692,
-    //     sexo: 'Sr.',
-    //   },
-    //   {
-    //     nombre: 'CARLOS',
-    //     celular: 936394203,
-    //     sexo: null,
-    //   },
-    //   {
-    //     nombre: 'CARLOS',
-    //     celular: 936394203,
-    //     sexo: 'Sr.',
-    //   },
-    // ];
 
     for (const item of dataWsp) {
       try {
         await WspGlobalInstance[key].sendTextMessage(
           `51${item.celular}`,
           `¡Hola! *${((item.sexo || '') + ' ' + item.nombre).trim()}*.
-Le saluda *Kevin*, ejecutivo del Atlantic City. 
+Le saluda *Lessandra*, ejecutivo del Atlantic City. 
     
 *¡FELICITACIONES!* 🥳🎁 *Estás a un paso de ganar 2 entradas para el Show de Carlos Álvarez este 18 de abril*. 🎙🎭 *¡Vuelve en grande con un grande del humor!* 😎 Para acceder al premio, solo tienes que ingresar tu tarjeta Atlantic City Club en tu máquina preferida acumular 50 puntos hasta el 15 de abril y listo 💳 ¡Más fácil, imposible! Asegura tus entradas jugando desde hoy que la capacidad es limitada.`,
         );

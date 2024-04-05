@@ -1,5 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { BaseEntity } from 'src/common/base/base.entity';
+import { CustomField } from '../types/custom-field.type';
+
+
 
 @Schema()
 export class Contact extends BaseEntity{
@@ -21,11 +24,11 @@ export class Contact extends BaseEntity{
   assignedUser: string;
 
   @Prop({
-    type: [String],
+    type: [{}],
     required: true,
-    default: {}
+    default: []
   })
-  customFields: { [key: string]: string, value: string }[]
+  customFields: CustomField[]
 
   @Prop({
     type: String,
