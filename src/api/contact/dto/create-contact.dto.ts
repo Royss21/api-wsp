@@ -1,6 +1,6 @@
 import { Prop } from "@nestjs/mongoose";
 import { CustomField } from "../types/custom-field.type";
-import { IsString, MinLength } from "class-validator";
+import { IsEmail, IsOptional, IsString, MinLength } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
 
@@ -23,15 +23,45 @@ export class CreateContactDto {
     @MinLength(11)
     phoneNumber: string;
 
+    @ApiProperty({
+        type: String
+    })
+    @IsString()
+    @IsEmail()
     assignedUser: string;
 
+    @ApiProperty({
+        type: [{} as CustomField],
+        isArray: true
+    })
+    @IsString()
     customFields: CustomField[];
       
+    @ApiProperty({
+        type: String
+    })
+    @IsString()
+    @IsOptional()
     avatarUrl?:string;
 
+    @ApiProperty({
+        type: String
+    })
+    @IsString()
+    @IsOptional()
+    @IsEmail()
     email?:string;
 
+    @ApiProperty({
+        type: String
+    })
+    @IsString()
     note:string;
 
+    @ApiProperty({
+        type: [String],
+        isArray: true
+    })
+    @IsString()
     tags:string[];
 }

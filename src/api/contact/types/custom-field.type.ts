@@ -1,4 +1,4 @@
-export type CustomField = {
-    field: string, 
+export class CustomField {
+    field: string;
     value: string 
 }

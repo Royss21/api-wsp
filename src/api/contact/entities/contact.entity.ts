@@ -24,7 +24,7 @@ export class Contact extends BaseEntity{
   assignedUser: string;
 
   @Prop({
-    type: [{}],
+    type: [CustomField],
     required: true,
     default: []
   })
