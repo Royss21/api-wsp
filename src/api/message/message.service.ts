@@ -15,15 +15,14 @@ function generarNumeroAleatorio() {
 export class MessageService {
   async sendBulkMessage(key: string) {
     const dataError = [];
-
     for (const item of dataWsp) {
       try {
         await WspGlobalInstance[key].sendTextMessage(
           `51${item.celular}`,
           `¡Hola! *${((item.sexo || '') + ' ' + item.nombre).trim()}*.
-Le saluda *Lessandra*, ejecutivo del Atlantic City. 
+Le saluda *Kevin Sanchez*, ejecutivo del Atlantic City. 
     
-*¡FELICITACIONES!* 🥳🎁 *Estás a un paso de ganar 2 entradas para el Show de Carlos Álvarez este 18 de abril*. 🎙🎭 *¡Vuelve en grande con un grande del humor!* 😎 Para acceder al premio, solo tienes que ingresar tu tarjeta Atlantic City Club en tu máquina preferida acumular 50 puntos hasta el 15 de abril y listo 💳 ¡Más fácil, imposible! Asegura tus entradas jugando desde hoy que la capacidad es limitada.`,
+*¡FELICITACIONES!* 🥳🎁 *Estás a un paso de ganar 2 entradas para el Show de Carlos Álvarez este 18 de abril*. 🎙🎭 *¡Vuelve en grande con un grande del humor!* 😎 Para acceder al premio, solo tienes que ingresar tu tarjeta Atlantic City Club en tu máquina preferida acumular 50 puntos hasta el 15 de abril y listo 💳 ¡Más fácil, imposible! Asegura tus entradas jugando desde hoy que la capacidad es limitada, para mayor información puede comunicarse conmigo a este número o al 998176527, lo esperamos.`,
         );
 
         await delay(generarNumeroAleatorio());
