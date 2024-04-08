@@ -2,12 +2,11 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { BaseEntity } from 'src/common/base/base.entity';
 import { CustomField } from '../types/custom-field.type';
 
-
-
 @Schema()
 export class Contact extends BaseEntity{
   @Prop({
-    type: String
+    type: String,
+    required: true
   })
   name: string;
 
