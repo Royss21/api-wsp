@@ -1,3 +1,7 @@
+export const envConfiguration = {
+  
+}
+
 export class Config {
   static readonly port = (process.env.PORT || 3333) as number;
   static readonly token = process.env.TOKEN || '';

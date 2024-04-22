@@ -2,12 +2,18 @@ import axios from 'axios';
 import { Collection, Connection } from 'mongoose';
 import * as QRCode from 'qrcode';
 
-import { SocketConfig, WABrowserDescription } from '@adiwajshing/baileys';
-import { DisconnectReason, makeWASocket } from '@adiwajshing/baileys';
+import {
+  DisconnectReason,
+  SocketConfig,
+  WABrowserDescription,
+  makeWASocket,
+} from '@adiwajshing/baileys';
 
 import { Config as config } from '../config/config';
-import { Chat, IWspInstance } from './';
 import { downloadMessage, mongoDBAuthState } from '../helpers';
+import { IWspInstance } from '../interfaces';
+import { WspInstance } from './wsp-instance';
+import { Chat } from '../models/chat.model';
 
 export class WspAppInstance {
   socketConfig: SocketConfig = {
@@ -607,39 +613,6 @@ export class WspAppInstance {
     return users.map((users) => this.getWhatsAppId(users));
   }
 
-  // async updateDbGroupsParticipants() {
-  //     try {
-  //         const groups = await this.groupFetchAllParticipating()
-  //         const Chats = await this.getChat()
-  //         if (groups && Chats) {
-  //             for (const [key, value] of Object.entries(groups)) {
-  //                 const group = Chats.find((c) => c.id === value.id)
-  //                 if (group) {
-  //                     const participants = []
-  //                     for (const [
-  //                         key_participant,
-  //                         participant,
-  //                     ] of Object.entries(value.participants)) {
-  //                         participants.push(participant)
-  //                     }
-  //                     group.participant = participants
-  //                     if (value.creation) {
-  //                         group.creation = value.creation
-  //                     }
-  //                     if (value.subjectOwner) {
-  //                         group.subjectOwner = value.subjectOwner
-  //                     }
-  //                     Chats.filter((c) => c.id === value.id)[0] = group
-  //                 }
-  //             }
-  //             await this.updateDb(Chats)
-  //         }
-  //     } catch (e) {
-  //         //logger.error(e)
-  //         //logger.error('Error updating groups failed')
-  //     }
-  // }
-
   async createNewGroup(name, users) {
     try {
       const group = await this.instance.sock?.groupCreate('My Fab Group', [
@@ -936,62 +909,5 @@ export class WspAppInstance {
     } catch (e) {
       //logger.error('Error updating document failed')
     }
-  }
-
-  async readMessage(msgObj) {
-    try {
-      const key = {
-        remoteJid: msgObj.remoteJid,
-        id: msgObj.id,
-        participant: msgObj?.participant, // required when reading a msg from group
-      };
-      const res = await this.instance.sock?.readMessages([key]);
-      return res;
-    } catch (e) {
-      //logger.error('Error read message failed')
-    }
-  }
-
-  async reactMessage(id, key, emoji) {
-    try {
-      const reactionMessage = {
-        react: {
-          text: emoji, // use an empty string to remove the reaction
-          key: key,
-        },
-      };
-      const res = await this.instance.sock?.sendMessage(
-        this.getWhatsAppId(id),
-        reactionMessage,
-      );
-      return res;
-    } catch (e) {
-      //logger.error('Error react message failed')
-    }
-  }
-}
-
-export class WspInstance implements IWspInstance {
-  key: string = '';
-  chats: any[] = [];
-  qr: string = '';
-  messages: any[] = [];
-  qrRetry: number = 0;
-  customWebhook: string = '';
-  sock: any;
-  online: boolean;
-
-  constructor(key: string, customWehbook: string = '') {
-    this.key = key;
-    this.customWebhook = customWehbook;
-    this.qrRetry = 0;
-    this.key = '';
-    this.chats = [];
-    this.qr = '';
-    this.messages = [];
-    this.qrRetry = 0;
-    this.sock = {};
-    this.customWebhook = '';
-    this.online = false;
   }
 }

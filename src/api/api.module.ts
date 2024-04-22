@@ -10,10 +10,10 @@ import { UserModule } from './user/user.module';
   imports: [
     InstanceModule,
     MessageModule,
-    ContactModule,
-    ChannelModule,
-    TeamModule,
-    UserModule,
+    // ContactModule,
+    // ChannelModule,
+    // TeamModule,
+    // UserModule,
   ],
 })
 export class ApiModule {}

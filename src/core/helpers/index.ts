@@ -1,7 +1,3 @@
-export { restoreSessions } from "./restore-sessions";
-
-export { mongoDBAuthState } from "./mongo-auth";
-export { downloadMessage } from "./download-msg";
-
-
-
+export { mongoDBAuthState } from './db/mongo-auth';
+export { downloadMessage } from './file/download-msg';
+export { restoreInstanceByKey, restoreInstances } from './wsp';

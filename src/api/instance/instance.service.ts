@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { restoreInstanceByKey, restoreInstances } from 'src/core/helpers';
 import { WspAppInstance, WspGlobalInstance } from 'src/core/wsp-instance';
-import { restoreSessions } from 'src/core/helpers';
 
 @Injectable()
 export class InstanceService {
@@ -11,9 +11,7 @@ export class InstanceService {
   async create(key: string): Promise<string> {
     const data = new WspAppInstance(this.connection, key);
     const instance = await data.init();
-
     WspGlobalInstance[data.key] = instance;
-
     return key;
   }
 
@@ -35,8 +33,17 @@ export class InstanceService {
 
   async restoreInstances(): Promise<any> {
     try {
-      const restoredSessions = await restoreSessions(this.connection);
-      return restoredSessions;
+      const instances = await restoreInstances(this.connection);
+      return instances;
+    } catch (error) {
+      console.log('restoreInstances', { error });
+    }
+  }
+
+  async restoreByKey(key: string): Promise<any> {
+    try {
+      const instance = await restoreInstanceByKey(key, this.connection);
+      return instance;
     } catch (error) {
       console.log('restoreInstances', { error });
     }
@@ -51,15 +58,7 @@ export class InstanceService {
     }
   }
 
-  async delete(key: string): Promise<void> {
-    try {
-      await WspGlobalInstance[key].deleteInstance(key);
-    } catch (error) {
-      console.log('delete', { error });
-    }
-  }
-
-  async list(active: boolean) {
+  async getAll(active: boolean) {
     if (active) {
       const result = await this.connection.listCollections();
       return {
