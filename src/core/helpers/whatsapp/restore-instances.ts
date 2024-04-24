@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { Connection } from 'mongoose';
-import { WspAppInstance } from 'src/core/wsp-instance';
-import { WspGlobalInstance } from 'src/core/wsp-instance/wsp-global-instance';
+import { WhatsApp } from 'src/core/whatsapp/whatsapp';
+import { WspGlobalInstance } from 'src/core/whatsapp/whatsapp-global';
 
 export const restoreInstances = async (connection: Connection) => {
   const restoredSessions = new Array();
@@ -16,14 +16,16 @@ export const restoreInstances = async (connection: Connection) => {
     );
 
   if (Object.keys(WspGlobalInstance).length > 0)
-    Object.keys(WspGlobalInstance).forEach((key) => delete WspAppInstance[key]);
+    Object.keys(WspGlobalInstance).forEach(
+      (key) => delete WspGlobalInstance[key],
+    );
 
   for (const collection of collections) {
     instanceCollections.push(collection.name);
   }
 
   for (const key of instanceCollections) {
-    const instance = new WspAppInstance(connection, key);
+    const instance = new WhatsApp(connection, key);
     await instance.init();
     WspGlobalInstance[key] = instance;
     restoredSessions.push(key);

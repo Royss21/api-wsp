@@ -1,8 +1,9 @@
-import { getWhatsAppId, parseParticipants } from './';
-import { WspInstance } from 'src/core/wsp-instance';
+import { WhatsAppInstance } from 'src/core/whatsapp/whatsapp-instance';
+import { getWhatsAppId, parseParticipants } from '.';
+
 
 export const addParticipantGroup = async (
-  instance: WspInstance,
+  instance: WhatsAppInstance,
   id: string,
   users: string[],
 ) => {

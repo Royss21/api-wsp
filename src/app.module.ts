@@ -1,14 +1,12 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ApiModule } from './api/api.module';
-import { Config } from './core/config/config';
+import { envs } from './core/config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    MongooseModule.forRoot(Config.mongoose.url, {
-      dbName: 'wsp-api',
+    MongooseModule.forRoot(envs.mongodb_url, {
+      dbName: envs.mongodb_bdname,
     }),
     ApiModule,
   ],

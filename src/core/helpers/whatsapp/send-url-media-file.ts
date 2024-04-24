@@ -1,8 +1,8 @@
-import { WspInstance } from 'src/core/wsp-instance/wsp-app-instance';
+import { WhatsAppInstance } from 'src/core/whatsapp/whatsapp-instance';
 import { getWhatsAppId, verifyId } from '.';
 
 export const sendUrlMediaFile = async (
-  instance: WspInstance,
+  instance: WhatsAppInstance,
   to: string,
   url: string,
   type: string,

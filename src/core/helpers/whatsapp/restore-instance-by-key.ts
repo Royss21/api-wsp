@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { Connection } from 'mongoose';
-import { WspAppInstance } from 'src/core/wsp-instance';
-import { WspGlobalInstance } from 'src/core/wsp-instance/wsp-global-instance';
+import { WhatsApp } from 'src/core/whatsapp/whatsapp';
+import { WspGlobalInstance } from 'src/core/whatsapp/whatsapp-global';
 
 export const restoreInstanceByKey = async (
   key: string,
@@ -15,9 +15,9 @@ export const restoreInstanceByKey = async (
       'No se ha encontrado la instancia en el servidor.',
     );
 
-  if (WspAppInstance[key]) delete WspAppInstance[key];
+  if (WspGlobalInstance[key]) delete WspGlobalInstance[key];
 
-  const instance = new WspAppInstance(connection, key);
+  const instance = new WhatsApp(connection, key);
   await instance.init();
   WspGlobalInstance[key] = instance;
 

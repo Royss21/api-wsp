@@ -10,8 +10,7 @@ export class InstanceController {
 
   @Post()
   async create(@Body() instanceDto: CreateInstanceDto) {
-    const { key } = instanceDto;
-    const instanceKey = await this.instanceService.create(key);
+    const instanceKey = await this.instanceService.create(instanceDto);
     return instanceKey;
   }
 
@@ -45,7 +44,7 @@ export class InstanceController {
     return true;
   }
 
-  @Get()
+  @Get('/get-all')
   async list(@Query('active') active: boolean) {
     const instances = await this.instanceService.getAll(active + '' === 'true');
     return instances;

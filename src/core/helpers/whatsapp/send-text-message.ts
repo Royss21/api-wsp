@@ -1,8 +1,8 @@
-import { WspInstance } from 'src/core/wsp-instance/wsp-app-instance';
-import { getWhatsAppId, verifyId } from './';
+import { WhatsAppInstance } from 'src/core/whatsapp/whatsapp-instance';
+import { getWhatsAppId, verifyId } from '.';
 
 export const sendTextMessage = async (
-  instance: WspInstance,
+  instance: WhatsAppInstance,
   to: string,
   message: string,
 ) => {

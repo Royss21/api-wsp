@@ -1,7 +1,7 @@
-import { WspInstance } from 'src/core/wsp-instance/wsp-app-instance';
+import { WhatsAppInstance } from 'src/core/whatsapp/whatsapp-instance';
 
 export const createGroup = async (
-  instance: WspInstance,
+  instance: WhatsAppInstance,
   name: string,
   users: string[],
 ) => {

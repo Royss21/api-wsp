@@ -1,15 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { restoreInstanceByKey, restoreInstances } from 'src/core/helpers';
-import { WspAppInstance, WspGlobalInstance } from 'src/core/wsp-instance';
+import {
+  restoreInstanceByKey,
+  restoreInstances,
+} from 'src/core/helpers/whatsapp';
+import { WhatsApp } from 'src/core/whatsapp/whatsapp';
+import { WspGlobalInstance } from 'src/core/whatsapp/whatsapp-global';
+import { CreateInstanceDto } from './dtos';
 
 @Injectable()
 export class InstanceService {
   constructor(@InjectConnection() private connection: Connection) {}
 
-  async create(key: string): Promise<string> {
-    const data = new WspAppInstance(this.connection, key);
+  async create(instanceDto: CreateInstanceDto): Promise<string> {
+    const { key, webhookUrl } = instanceDto;
+    const data = new WhatsApp(this.connection, key, webhookUrl);
     const instance = await data.init();
     WspGlobalInstance[data.key] = instance;
     return key;
