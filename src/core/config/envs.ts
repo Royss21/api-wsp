@@ -2,7 +2,6 @@ import 'dotenv/config';
 import * as joi from 'joi';
 import { IEnvVars } from '../interfaces';
 
-
 const envSchema = joi
   .object({
     PORT: joi.number().required(),
@@ -29,4 +28,6 @@ export const envs = {
   webhook_url: envVars.WEBHOOK_URL,
   webhook_base64: envVars.WEBHOOK_BASE64,
   webhook_allowed_events: envVars.WEBHOOK_ALLOWED_EVENTS,
+  instance_max_connection_retries: envVars.INSTANCE_MAX_CONNECTION_RETRIES,
+  instance_name_schema: envVars.INSTANCE_NAME_SCHEMA
 };

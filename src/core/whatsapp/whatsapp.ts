@@ -10,9 +10,11 @@ import { Collection, Connection } from 'mongoose';
 import { sendWebhookType, whatsappConnectionType } from 'src/common/constants';
 
 import * as QRCode from 'qrcode';
+import { CreateInstanceDto } from 'src/api/instance/dtos';
 import { envs } from '../config';
-import { mongoDBAuthState } from '../helpers/db/mongo-auth';
+import { mongoAuthState } from '../helpers/db';
 import { IWhatsAppAuthState } from '../interfaces';
+import { WspGlobalInstance } from './whatsapp-global';
 import { WhatsAppInstance } from './whatsapp-instance';
 
 export class WhatsApp {
@@ -24,14 +26,20 @@ export class WhatsApp {
   collection: Collection;
   instance: WhatsAppInstance;
   axiosInstance: AxiosInstance;
+  connectionRetries: number;
+  maxConnectionRetries: number;
 
   constructor(
     private connection: Connection,
-    key: string,
-    webhook?: string | undefined,
+    instanceDto: CreateInstanceDto,
   ) {
+    const { key, webhookUrl, connectionRetry } = instanceDto;
     this.key = key;
-    this.webhook = webhook && envs.webhook_url;
+    this.webhook = webhookUrl ? webhookUrl : envs.webhook_url;
+    this.connectionRetries = 0;
+    this.maxConnectionRetries = connectionRetry
+      ? connectionRetry
+      : envs.instance_max_connection_retries;
     this.allowWebhook = envs.webhook_enabled;
     this.instance = new WhatsAppInstance(key);
     this.instance.customWebhook = this.webhook;
@@ -46,7 +54,7 @@ export class WhatsApp {
 
   async init() {
     this.collection = this.connection.collection(this.key);
-    const { state, saveCreds } = await mongoDBAuthState(this.collection);
+    const { state, saveCreds } = await mongoAuthState(this.collection);
     this.authState = {
       state: state,
       saveCreds: saveCreds,
@@ -69,7 +77,10 @@ export class WhatsApp {
 
     //OTHERS
     sock?.ev.on('creds.update', this.authState.saveCreds);
-    sock?.ev.on('connection.update', async (data) => await this.connectionUpdate(data));
+    sock?.ev.on(
+      'connection.update',
+      async (data) => await this.connectionUpdate(data),
+    );
     sock?.ev.on(
       'messaging-history.set',
       ({ chats, contacts, messages, isLatest }) => {
@@ -127,7 +138,7 @@ export class WhatsApp {
     await this.axiosInstance
       .post('', {
         type,
-        body,
+        body: JSON.stringify(body),
         instanceKey: this.key,
       })
       .catch(() => {});
@@ -136,14 +147,24 @@ export class WhatsApp {
   private async connectionUpdate(update: Partial<ConnectionState>) {
     const { CONNECTING, CLOSE, OPEN } = whatsappConnectionType;
     const { connection, lastDisconnect, qr } = update;
-
+    console.log({ update });
     if (connection === CONNECTING) return;
 
     if (connection === CLOSE) {
       this.instance.online = false;
-      if (lastDisconnect?.error) await this.init();
+      this.connectionRetries++;
+
+      if (this.connectionRetries > this.maxConnectionRetries) {
+        if (this.key in WspGlobalInstance) {
+          delete WspGlobalInstance[this.key];
+          await this.connection.dropCollection(this.key);
+        }
+      } else if (lastDisconnect?.error) {
+        await this.init();
+      }
     } else if (connection === OPEN) {
       this.instance.online = true;
+      this.connectionRetries = 0;
     }
 
     await this.sendWebhook(sendWebhookType.CONNECTION, {

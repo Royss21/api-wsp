@@ -53,7 +53,7 @@ const BufferJSON = {
     },
 }
 
-export const mongoDBAuthState = async (collection: Collection) => {
+export const mongoAuthState = async (collection: Collection) => {
    
      const writeData = (data, id) => {
          return collection.replaceOne(

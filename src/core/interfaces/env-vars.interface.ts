@@ -10,6 +10,8 @@ export interface IEnvVars {
   CLIENT_VERSION: string;
 
   INSTANCE_MAX_RETRY_QR: number;
+  INSTANCE_MAX_CONNECTION_RETRIES: number;
+  INSTANCE_NAME_SCHEMA: string;
 
   MONGODB_ENABLED: boolean;
   MONGODB_URL: string;

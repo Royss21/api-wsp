@@ -1,1 +1,1 @@
-export class WspGlobalInstance {};
+export const WspGlobalInstance  = {};

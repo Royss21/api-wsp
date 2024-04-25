@@ -1,7 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { getInstanceCollections } from 'src/core/helpers/db';
 import {
+  getInstanceDetail,
   restoreInstanceByKey,
   restoreInstances,
 } from 'src/core/helpers/whatsapp';
@@ -14,8 +20,14 @@ export class InstanceService {
   constructor(@InjectConnection() private connection: Connection) {}
 
   async create(instanceDto: CreateInstanceDto): Promise<string> {
-    const { key, webhookUrl } = instanceDto;
-    const data = new WhatsApp(this.connection, key, webhookUrl);
+    const { key } = instanceDto;
+    const instanceCollections = await getInstanceCollections(this.connection);
+    if (instanceCollections.some((collection) => collection.name === key))
+      throw new BadRequestException(
+        `Ya existe una instancia con la key ${key}`,
+      );
+
+    const data = new WhatsApp(this.connection, instanceDto);
     const instance = await data.init();
     WspGlobalInstance[data.key] = instance;
     return key;
@@ -57,32 +69,36 @@ export class InstanceService {
 
   async logout(key: string): Promise<void> {
     try {
-      await WspGlobalInstance[key].instance?.sock?.logout();
-      delete WspGlobalInstance[key];
+      if (!WspGlobalInstance[key])
+        throw new NotFoundException(
+          `No existe una instancia en memoria con la key ${key}`,
+        );
+
+      const { key: instancekey } = WspGlobalInstance[key] as WhatsApp;
+      await WspGlobalInstance[instancekey].instance?.sock?.logout();
+      delete WspGlobalInstance[instancekey];
+      await this.connection.dropCollection(instancekey);
     } catch (error) {
       console.log('logout', { error });
     }
   }
 
-  async getAll(active: boolean) {
-    if (active) {
-      const result = await this.connection.listCollections();
-      return {
-        ok: true,
-        message: 'All active instance',
-        data: result.map((collection) => collection.name),
-      };
+  async getAll() {
+    const collestionsBd = await getInstanceCollections(this.connection);
+    const instanceDb = collestionsBd.map((c) => c.name);
+    const instanceKeys = Object.keys(WspGlobalInstance);
+    const instanceMemory = [];
+    for (const key of instanceKeys) {
+      const whatsapp = WspGlobalInstance[key] as WhatsApp;
+      const detail = await getInstanceDetail(whatsapp.instance);
+      instanceMemory.push({ [key]: detail });
     }
-
-    const instance = Object.keys(WspGlobalInstance).map(async (key) =>
-      WspGlobalInstance[key].getInstanceDetail(key),
-    );
-    const instances = await Promise.all(instance);
 
     return {
       ok: true,
       message: 'All instance listed',
-      data: instances,
+      instanceDb,
+      instanceMemory,
     };
   }
 }

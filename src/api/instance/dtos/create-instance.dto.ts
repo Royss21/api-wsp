@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsOptional, IsString } from "class-validator";
+import { Type } from "class-transformer";
+import { IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
 
 export class CreateInstanceDto {
   @ApiProperty()
@@ -10,4 +11,11 @@ export class CreateInstanceDto {
   @IsString()
   @IsOptional()
   webhookUrl?: string;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsOptional()
+  @IsPositive()
+  @Type(() => Number)
+  connectionRetry?: number;
 }

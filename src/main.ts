@@ -10,7 +10,7 @@ async function bootstrap() {
   const logger = new Logger('AppMain');
 
   const config = new DocumentBuilder()
-    .setTitle('Facebook API')
+    .setTitle('WhatsApp API')
     .setDescription('The Facebook API description')
     .setVersion('1.0')
     .build();
@@ -24,7 +24,7 @@ async function bootstrap() {
     }),
   );
   app.enableCors();
-  app.setGlobalPrefix('api');
+  // app.setGlobalPrefix('api');
 
   await app.listen(envs.port);
   logger.log(`Server running on port ${envs.port}`);

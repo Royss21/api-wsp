@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { InstanceService } from './instance.service';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateInstanceDto } from './dtos';
+import { envs } from 'src/core/config';
 
 @ApiTags('Instance')
 @Controller('instance')
@@ -10,6 +11,7 @@ export class InstanceController {
 
   @Post()
   async create(@Body() instanceDto: CreateInstanceDto) {
+    instanceDto = { ...instanceDto, key: `${envs.instance_name_schema}_${instanceDto.key}` }
     const instanceKey = await this.instanceService.create(instanceDto);
     return instanceKey;
   }
@@ -34,19 +36,19 @@ export class InstanceController {
 
   @Get('restore-all')
   async restoreInstances() {
-    await this.instanceService.restoreInstances();
-    return true;
+    const instances = await this.instanceService.restoreInstances();
+    return instances;
   }
 
   @Get(':key/restore')
   async restore(@Param('key') key: string) {
-    await this.instanceService.restoreByKey(key);
-    return true;
+    const instance = await this.instanceService.restoreByKey(key);
+    return instance;
   }
 
   @Get('/get-all')
-  async list(@Query('active') active: boolean) {
-    const instances = await this.instanceService.getAll(active + '' === 'true');
+  async list() {
+    const instances = await this.instanceService.getAll();
     return instances;
   }
 }
