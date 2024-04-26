@@ -13,9 +13,10 @@ export interface IEnvVars {
   INSTANCE_MAX_CONNECTION_RETRIES: number;
   INSTANCE_NAME_SCHEMA: string;
 
-  MONGODB_ENABLED: boolean;
-  MONGODB_URL: string;
-  MONGODB_BDNAME: string;
+  MONGO_URL: string;
+  MONGO_DBNAME: string;
+  MONGO_INSTANCE_URL: string;
+  MONGO_INSTANCE_DBNAME: string;
 
   WEBHOOK_ENABLED: boolean;
   WEBHOOK_URL: string;

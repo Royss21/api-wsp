@@ -5,8 +5,13 @@ import { envs } from './core/config';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(envs.mongodb_url, {
-      dbName: envs.mongodb_bdname,
+    MongooseModule.forRoot(envs.mongo_instance_url, {
+      dbName: envs.mongo_instance_dbname,
+      connectionName: envs.mongo_instance_dbname,
+    }),
+    MongooseModule.forRoot(envs.mongo_url, {
+      dbName: envs.mongo_dbname,
+      connectionName: envs.mongo_dbname,
     }),
     ApiModule,
   ],

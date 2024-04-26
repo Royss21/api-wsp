@@ -6,11 +6,16 @@ import makeWASocket, {
 
 import axios, { AxiosInstance } from 'axios';
 import { Collection, Connection } from 'mongoose';
-
-import { sendWebhookType, whatsappConnectionType } from 'src/common/constants';
-
 import * as QRCode from 'qrcode';
+
+import {
+  CONNECTION,
+  WSP_CONNECTION_OPEN,
+  WSP_CONNECTION_CLOSE,
+  WSP_CONNECTING,
+} from 'src/common/constants';
 import { CreateInstanceDto } from 'src/api/instance/dtos';
+
 import { envs } from '../config';
 import { mongoAuthState } from '../helpers/db';
 import { IWhatsAppAuthState } from '../interfaces';
@@ -145,29 +150,28 @@ export class WhatsApp {
   }
 
   private async connectionUpdate(update: Partial<ConnectionState>) {
-    const { CONNECTING, CLOSE, OPEN } = whatsappConnectionType;
     const { connection, lastDisconnect, qr } = update;
-    console.log({ update });
-    if (connection === CONNECTING) return;
 
-    if (connection === CLOSE) {
+    if (connection === WSP_CONNECTING) return;
+
+    if (connection === WSP_CONNECTION_CLOSE) {
       this.instance.online = false;
       this.connectionRetries++;
 
       if (this.connectionRetries > this.maxConnectionRetries) {
         if (this.key in WspGlobalInstance) {
-          delete WspGlobalInstance[this.key];
+          this._disconnectInstance();
           await this.connection.dropCollection(this.key);
         }
       } else if (lastDisconnect?.error) {
         await this.init();
       }
-    } else if (connection === OPEN) {
+    } else if (connection === WSP_CONNECTION_OPEN) {
       this.instance.online = true;
       this.connectionRetries = 0;
     }
 
-    await this.sendWebhook(sendWebhookType.CONNECTION, {
+    await this.sendWebhook(CONNECTION, {
       connection: connection,
     });
 
@@ -176,11 +180,16 @@ export class WhatsApp {
       this.instance.qr = url;
       this.instance.qrRetry = this.instance.qrRetry + 1;
 
-      if (this.instance.qrRetry > envs.instance_max_retry_qr) {
-        this.instance.sock.ws.close();
-        this.instance.sock.ev.removeAllListeners();
-        this.instance.qr = '';
-      }
+      if (this.instance.qrRetry > envs.instance_max_retry_qr)
+        this._disconnectInstance();
     }
+  }
+
+  private _disconnectInstance() {
+    const instance = WspGlobalInstance[this.key].instance;
+
+    instance?.sock?.ev?.removeAllListeners();
+    instance?.sock?.ws?.close();
+    delete WspGlobalInstance[this.key];
   }
 }

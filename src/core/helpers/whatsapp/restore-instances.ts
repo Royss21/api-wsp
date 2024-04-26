@@ -19,9 +19,12 @@ export const restoreInstances = async (connection: Connection) => {
     );
 
   if (Object.keys(WspGlobalInstance).length > 0)
-    Object.keys(WspGlobalInstance).forEach(
-      (key) => delete WspGlobalInstance[key],
-    );
+    Object.keys(WspGlobalInstance).forEach((key) => {
+      const instance = WspGlobalInstance[key].instance;
+      instance?.sock?.ev?.removeAllListeners();
+      instance?.sock?.ws?.close();
+      delete WspGlobalInstance[key];
+    });
 
   for (const collection of collections) {
     instanceCollections.push(collection.name);
@@ -31,7 +34,7 @@ export const restoreInstances = async (connection: Connection) => {
     const instance = new WhatsApp(connection, { key });
     await instance.init();
     WspGlobalInstance[key] = instance;
-    console.log({WspGlobalInstance})
+    console.log({ WspGlobalInstance });
     restoredSessions.push(key);
   }
 

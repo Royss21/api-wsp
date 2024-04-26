@@ -14,20 +14,26 @@ import {
 import { WhatsApp } from 'src/core/whatsapp/whatsapp';
 import { WspGlobalInstance } from 'src/core/whatsapp/whatsapp-global';
 import { CreateInstanceDto } from './dtos';
+import { envs } from 'src/core/config';
 
 @Injectable()
 export class InstanceService {
-  constructor(@InjectConnection() private connection: Connection) {}
+  constructor(
+    @InjectConnection(envs.mongo_instance_dbname)
+    private readonly connectionInstance: Connection,
+  ) {}
 
   async create(instanceDto: CreateInstanceDto): Promise<string> {
     const { key } = instanceDto;
-    const instanceCollections = await getInstanceCollections(this.connection);
+    const instanceCollections = await getInstanceCollections(
+      this.connectionInstance,
+    );
     if (instanceCollections.some((collection) => collection.name === key))
       throw new BadRequestException(
         `Ya existe una instancia con la key ${key}`,
       );
 
-    const data = new WhatsApp(this.connection, instanceDto);
+    const data = new WhatsApp(this.connectionInstance, instanceDto);
     const instance = await data.init();
     WspGlobalInstance[data.key] = instance;
     return key;
@@ -51,7 +57,7 @@ export class InstanceService {
 
   async restoreInstances(): Promise<any> {
     try {
-      const instances = await restoreInstances(this.connection);
+      const instances = await restoreInstances(this.connectionInstance);
       return instances;
     } catch (error) {
       console.log('restoreInstances', { error });
@@ -60,7 +66,7 @@ export class InstanceService {
 
   async restoreByKey(key: string): Promise<any> {
     try {
-      const instance = await restoreInstanceByKey(key, this.connection);
+      const instance = await restoreInstanceByKey(key, this.connectionInstance);
       return instance;
     } catch (error) {
       console.log('restoreInstances', { error });
@@ -77,14 +83,14 @@ export class InstanceService {
       const { key: instancekey } = WspGlobalInstance[key] as WhatsApp;
       await WspGlobalInstance[instancekey].instance?.sock?.logout();
       delete WspGlobalInstance[instancekey];
-      await this.connection.dropCollection(instancekey);
+      await this.connectionInstance.dropCollection(instancekey);
     } catch (error) {
       console.log('logout', { error });
     }
   }
 
   async getAll() {
-    const collestionsBd = await getInstanceCollections(this.connection);
+    const collestionsBd = await getInstanceCollections(this.connectionInstance);
     const instanceDb = collestionsBd.map((c) => c.name);
     const instanceKeys = Object.keys(WspGlobalInstance);
     const instanceMemory = [];
