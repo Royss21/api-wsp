@@ -21,7 +21,7 @@ export class InstanceService {
   constructor(
     @InjectConnection(envs.mongo_instance_dbname)
     private readonly connectionInstance: Connection,
-  ) {}
+  ) { }
 
   async create(instanceDto: CreateInstanceDto): Promise<string> {
     const { key } = instanceDto;

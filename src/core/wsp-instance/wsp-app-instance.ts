@@ -11,7 +11,6 @@
 
 // import { Chat } from '../models/chat.model';
 
-
 // export class WspAppInstance {
 //   socketConfig: SocketConfig = {
 //     defaultQueryTimeoutMs: undefined,

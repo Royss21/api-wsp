@@ -8,16 +8,17 @@ import axios, { AxiosInstance } from 'axios';
 import { Collection, Connection } from 'mongoose';
 import * as QRCode from 'qrcode';
 
+import { CreateInstanceDto } from 'src/api/instance/dtos';
 import {
   CONNECTION,
-  WSP_CONNECTION_OPEN,
-  WSP_CONNECTION_CLOSE,
   WSP_CONNECTING,
+  WSP_CONNECTION_CLOSE,
+  WSP_CONNECTION_OPEN,
 } from 'src/common/constants';
-import { CreateInstanceDto } from 'src/api/instance/dtos';
 
 import { envs } from '../config';
 import { mongoAuthState } from '../helpers/db';
+import { getWhatsAppId, verifyId } from '../helpers/whatsapp';
 import { IWhatsAppAuthState } from '../interfaces';
 import { WspGlobalInstance } from './whatsapp-global';
 import { WhatsAppInstance } from './whatsapp-instance';
@@ -84,7 +85,7 @@ export class WhatsApp {
     sock?.ev.on('creds.update', this.authState.saveCreds);
     sock?.ev.on(
       'connection.update',
-      async (data) => await this.connectionUpdate(data),
+      async (data) => await this._connectionUpdate(data),
     );
     sock?.ev.on(
       'messaging-history.set',
@@ -149,7 +150,15 @@ export class WhatsApp {
       .catch(() => {});
   }
 
-  private async connectionUpdate(update: Partial<ConnectionState>) {
+  async sendTextMessage(phoneNumber: string, messageText: string) {
+    const whatsAppId = await getWhatsAppId(this.instance, phoneNumber);
+    const data = await this.instance.sock?.sendMessage(whatsAppId, {
+      text: messageText,
+    });
+    return data;
+  }
+
+  private async _connectionUpdate(update: Partial<ConnectionState>) {
     const { connection, lastDisconnect, qr } = update;
 
     if (connection === WSP_CONNECTING) return;

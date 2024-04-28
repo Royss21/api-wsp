@@ -3,12 +3,13 @@ import { getWhatsAppId, verifyId } from '.';
 
 export const sendTextMessage = async (
   instance: WhatsAppInstance,
-  to: string,
-  message: string,
+  phoneNumber: string,
+  messageText: string,
 ) => {
-  await verifyId(instance, getWhatsAppId(to));
-  const data = await instance.sock?.sendMessage(getWhatsAppId(to), {
-    text: message,
+  const whatsAppId = getWhatsAppId(phoneNumber);
+  await verifyId(instance, whatsAppId);
+  const data = await instance.sock?.sendMessage(whatsAppId, {
+    text: messageText,
   });
   return data;
 };

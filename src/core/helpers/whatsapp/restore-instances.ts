@@ -34,7 +34,6 @@ export const restoreInstances = async (connection: Connection) => {
     const instance = new WhatsApp(connection, { key });
     await instance.init();
     WspGlobalInstance[key] = instance;
-    console.log({ WspGlobalInstance });
     restoredSessions.push(key);
   }
 

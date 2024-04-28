@@ -1,23 +1,13 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional, IsString, MinLength } from 'class-validator';
 
 export class MessageDto {
+  @ApiProperty()
+  @IsString()
+  phoneNumber: string;
 
-    @ApiProperty({
-        type: String,
-        description: 'Numero de celular mas prefijo "51999999999"',
-        minimum: 11,
-        maxLength: 11
-    })
-    id: string;
-
-    @ApiProperty({
-        type: String,
-        description: 'Mensaje a enviar',
-        minLength: 1
-    })
-    message: string;
-    file?: any;
-    caption?: string;
-    filename?: string;
-    msg?: string;
+  @ApiProperty()
+  @IsString()
+  @MinLength(2)
+  textMessage: string;
 }

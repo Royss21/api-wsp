@@ -3,19 +3,21 @@ import { getWhatsAppId, verifyId } from '.';
 
 export const sendMediaFile = async (
   instance: WhatsAppInstance,
-  to: string,
+  phoneNumber: string,
   file: any,
   type: string,
   filename?: string,
   caption?: string,
 ) => {
-  await verifyId(instance, getWhatsAppId(to));
-  const data = await instance.sock?.sendMessage(getWhatsAppId(to), {
+  const whatsappId = getWhatsAppId(phoneNumber);
+  await verifyId(instance, whatsappId);
+  const data = await instance.sock?.sendMessage(whatsappId, {
     mimetype: file.mimetype,
     [type]: file.buffer,
     caption: caption || '',
     ptt: type === 'audio',
-    fileName: filename || file.originalname || 'file-name',
+    fileName: filename || file.originalname || '',
   });
+
   return data;
 };
