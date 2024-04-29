@@ -7,11 +7,11 @@ export const makeAdmin = async (
   users: string[],
 ) => {
   try {
-    const res = await instance.sock?.groupMakeAdmin(
-      getWhatsAppId(id),
-      parseParticipants(users),
-    );
-    return res;
+    // const res = await instance.sock?.groupMakeAdmin(
+    //   getWhatsAppId(id),
+    //   parseParticipants(users),
+    // );
+    // return res;
   } catch {
     return {
       error: true,

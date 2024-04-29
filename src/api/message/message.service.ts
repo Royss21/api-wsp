@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { getInstance, sendMediaFile } from 'src/core/helpers/whatsapp';
+import { getInstance } from 'src/core/helpers/whatsapp';
 
 import {
   MessageBulkDto,
@@ -40,15 +40,7 @@ export class MessageService {
 
   async sendTextMessage(key: string, message: MessageDto) {
     const { phoneNumber, textMessage } = message;
-    const instance = getInstance(key);
-    // console.log({ instance });
-    // const responseWsp = await sendTextMessage(
-    //   instance,
-    //   phoneNumber,
-    //   textMessage,
-    // );
     const responseWsp = await getInstance(key).sendTextMessage(
-      //instance,
       phoneNumber,
       textMessage,
     );
@@ -56,38 +48,31 @@ export class MessageService {
     return responseWsp;
   }
 
-  async sendImageMessage(key: string, messageImage: MessageImageDto) {
-    const { phoneNumber, file, caption, textMessage } = messageImage;
-    const instance = getInstance(key);
-    const responseWsp = await sendMediaFile(
-      instance,
+  async sendImageMessage(key: string, file: any, messageImage: MessageImageDto) {
+    const { phoneNumber, caption, textMessage } = messageImage;
+    console.log({ phoneNumber, file, caption, textMessage });
+    const responseWsp = await getInstance(key).sendMediaMessage(
       phoneNumber,
       file,
       'image',
-      '',
-      caption || textMessage,
+      caption,
+      textMessage,
     );
 
     return responseWsp;
   }
 
-  async sendDocumentMessage(message: MessageDocumentDto, key: string) {
-    const { phoneNumber, file, fileName, caption, textMessage } = message;
-    const instance = getInstance(key);
-    const responseWsp = await sendMediaFile(
-      instance,
+  async sendDocumentMessage(key: string, file: any, message: MessageDocumentDto) {
+    const { phoneNumber, fileName, caption, textMessage } = message;
+    const responseWsp = await getInstance(key).sendMediaMessage(
       phoneNumber,
       file,
       'document',
+      caption,
+      textMessage,
       fileName,
-      caption || textMessage,
     );
 
     return responseWsp;
   }
-
-  // async readMessage(message: MessageDto, key: string) {
-  //   const responseWsp = await WspGlobalInstance[key].readMessage(message.msg);
-  //   return responseWsp;
-  // }
 }

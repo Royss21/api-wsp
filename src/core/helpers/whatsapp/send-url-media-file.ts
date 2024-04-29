@@ -9,14 +9,14 @@ export const sendUrlMediaFile = async (
   mimeType: string,
   caption?: string,
 ) => {
-  await verifyId(instance, getWhatsAppId(to));
-  const data = await instance.sock?.sendMessage(getWhatsAppId(to), {
-    [type]: {
-      url: url,
-    },
-    caption: caption || '',
-    mimetype: mimeType,
-  });
+  // await verifyId(instance, getWhatsAppId(to));
+  // const data = await instance.sock?.sendMessage(getWhatsAppId(to), {
+  //   [type]: {
+  //     url: url,
+  //   },
+  //   caption: caption || '',
+  //   mimetype: mimeType,
+  // });
 
-  return data;
+  return '';
 };

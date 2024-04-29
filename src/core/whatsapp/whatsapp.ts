@@ -18,7 +18,7 @@ import {
 
 import { envs } from '../config';
 import { mongoAuthState } from '../helpers/db';
-import { getWhatsAppId, verifyId } from '../helpers/whatsapp';
+import { getWhatsAppId } from '../helpers/whatsapp';
 import { IWhatsAppAuthState } from '../interfaces';
 import { WspGlobalInstance } from './whatsapp-global';
 import { WhatsAppInstance } from './whatsapp-instance';
@@ -150,10 +150,29 @@ export class WhatsApp {
       .catch(() => {});
   }
 
-  async sendTextMessage(phoneNumber: string, messageText: string) {
+  async sendTextMessage(phoneNumber: string, textMessage: string) {
     const whatsAppId = await getWhatsAppId(this.instance, phoneNumber);
     const data = await this.instance.sock?.sendMessage(whatsAppId, {
-      text: messageText,
+      text: textMessage,
+    });
+    return data;
+  }
+
+  async sendMediaMessage(
+    phoneNumber: string,
+    file: any,
+    type: string,
+    caption?: string,
+    textMessage?: string,
+    fileName?: string,
+  ) {
+    const whatsAppId = await getWhatsAppId(this.instance, phoneNumber);
+    const data = await this.instance.sock?.sendMessage(whatsAppId, {
+      mimetype: file.mimetype,
+      [type]: file.buffer,
+      caption: caption || textMessage || '',
+      ptt: type === 'audio',
+      fileName: fileName || file.originalname || '',
     });
     return data;
   }

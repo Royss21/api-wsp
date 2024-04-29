@@ -8,7 +8,7 @@ export const addParticipantGroup = async (
   users: string[],
 ) => {
   const res = await instance.sock?.groupAdd(
-    getWhatsAppId(id),
+    // getWhatsAppId(id),
     parseParticipants(users),
   );
   return res;
