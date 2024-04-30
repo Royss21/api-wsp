@@ -150,7 +150,7 @@ export class WhatsApp {
       .catch(() => {});
   }
 
-  async sendTextMessage(phoneNumber: string, textMessage: string) {
+  async sendText(phoneNumber: string, textMessage: string) {
     const whatsAppId = await getWhatsAppId(this.instance, phoneNumber);
     const data = await this.instance.sock?.sendMessage(whatsAppId, {
       text: textMessage,
@@ -158,11 +158,10 @@ export class WhatsApp {
     return data;
   }
 
-  async sendMediaMessage(
+  async sendMedia(
     phoneNumber: string,
     file: any,
     type: string,
-    caption?: string,
     textMessage?: string,
     fileName?: string,
   ) {
@@ -170,9 +169,27 @@ export class WhatsApp {
     const data = await this.instance.sock?.sendMessage(whatsAppId, {
       mimetype: file.mimetype,
       [type]: file.buffer,
-      caption: caption || textMessage || '',
+      caption: textMessage || '',
       ptt: type === 'audio',
       fileName: fileName || file.originalname || '',
+    });
+    return data;
+  }
+
+  async sendMediaUrl(
+    phoneNumber: string,
+    url: string,
+    type: string,
+    mimeType: string,
+    textMessage?: string,
+  ) {
+    const whatsAppId = await getWhatsAppId(this.instance, phoneNumber);
+    const data = await this.instance.sock?.sendMessage(whatsAppId, {
+      [type]: {
+        url: url,
+      },
+      caption: textMessage || '',
+      mimetype: mimeType,
     });
     return data;
   }

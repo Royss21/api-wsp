@@ -1,19 +1,14 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  FileTypeValidator,
-  MaxFileSizeValidator,
-  Param,
-  ParseFilePipe,
-  Post,
-  UploadedFiles,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Body, Controller, Param, Post, UseInterceptors } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 
-import { FilesInterceptor } from '@nestjs/platform-express';
-import { MessageBulkDto, MessageDocumentDto, MessageImageDto } from './dtos';
+import { CustomUploadFile } from './decorator';
+import {
+  MessageBulkDto,
+  MessageDocumentDto,
+  MessageImageDto,
+  MessageMediaUrlDto,
+} from './dtos';
 import { MessageDto } from './dtos/message.dto';
 import { MessageService } from './message.service';
 
@@ -22,41 +17,31 @@ import { MessageService } from './message.service';
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
+  // @ApiConsumes('multipart/form-data')
   @Post(':key/send-bulk')
-  async sendMessageBulk(
+  async sendBulk(
     @Param('key') key: string,
-    @Body() messageBulk: MessageBulkDto,
+    @Body() messageBulkTwo: MessageBulkDto,
   ) {
-    const data = await this.messageService.sendMessageBulk(key, messageBulk);
+    const data = await this.messageService.sendBulk(key, messageBulkTwo);
     return { data };
   }
 
   @Post(':key/send-text')
-  async sendTextMessage(
-    @Param('key') key: string,
-    @Body() messageDto: MessageDto,
-  ) {
-    const data = await this.messageService.sendTextMessage(key, messageDto);
+  async sendText(@Param('key') key: string, @Body() messageDto: MessageDto) {
+    const data = await this.messageService.sendText(key, messageDto);
     return { data };
   }
 
   @Post(':key/send-image')
   @UseInterceptors(FilesInterceptor('file'))
-  async sendImageMessage(
+  async sendImage(
     @Param('key') key: string,
-    @UploadedFiles(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 5 * 1000000 }),
-          new FileTypeValidator({ fileType: 'image/*' }),
-        ],
-      }),
-    )
+    @CustomUploadFile(5, 'image/*')
     file: Array<Express.Multer.File>,
     @Body() messageImageDto: MessageImageDto,
   ) {
-    if (file.length > 1) throw new BadRequestException('Attach only one image');
-    const data = await this.messageService.sendImageMessage(
+    const data = await this.messageService.sendImage(
       key,
       file[0],
       messageImageDto,
@@ -67,24 +52,25 @@ export class MessageController {
 
   @Post(':key/send-document')
   @UseInterceptors(FilesInterceptor('file'))
-  async sendDocumentMessage(
+  async sendDocument(
     @Param('key') key: string,
-    @UploadedFiles(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 50 * 1000000 }),
-          new FileTypeValidator({ fileType: /^(?!.*\.(jpg|jpeg|png|gif|bmp|svg)$).*$/ }),
-        ],
-      }),
-    )
-    file: Array<Express.Multer.File>,
+    @CustomUploadFile(50, '') file: Array<Express.Multer.File>,
     @Body() messageDocumentDto: MessageDocumentDto,
   ) {
-    const data = await this.messageService.sendDocumentMessage(
+    const data = await this.messageService.sendDocument(
       key,
       file[0],
       messageDocumentDto,
     );
+    return { data };
+  }
+
+  @Post(':key/send-media-url')
+  async sendMediaUrl(
+    @Param('key') key: string,
+    @Body() messageMediaUrl: MessageMediaUrlDto,
+  ) {
+    const data = await this.messageService.sendMediaUrl(key, messageMediaUrl);
     return { data };
   }
 }

@@ -6,41 +6,60 @@ import {
   MessageBulkDto,
   MessageDocumentDto,
   MessageDto,
+  MessageFileDto,
   MessageImageDto,
+  MessageMediaUrlDto,
 } from './dtos';
 import { generateRandomSecondsBetween, messageDelay } from './helpers';
 
 @Injectable()
 export class MessageService {
-  async sendMessageBulk(key: string, bulkMessage: MessageBulkDto) {
-    const { minSeconds, maxSeconds, messages } = bulkMessage;
+  async sendBulk(key: string, bulkMessage: MessageBulkDto) {
+    const { minSeconds, maxSeconds, files, contacts } = bulkMessage;
     const messageError = [];
     const instance = getInstance(key);
+    const filesIndex = files.reduce(
+      (acc, el) => ({ [el.key]: el, ...acc }),
+      {},
+    );
 
-    for (const [index, message] of messages.entries()) {
-      const { phoneNumber, textMessage } = message;
+    for (const [index, contact] of contacts.entries()) {
+      const { phoneNumber, messages } = contact;
 
-      try {
-        await instance.sendTextMessage(phoneNumber, textMessage);
-
-        if (index + 1 < messages.length)
-          await messageDelay(
-            generateRandomSecondsBetween(minSeconds, maxSeconds),
-          );
-      } catch (error) {
-        messageError.push({
-          phoneNumber,
-          error,
-        });
+      for (const message of messages) {
+        try {
+          const { fileKey, textMessage } = message;
+          const file = filesIndex[fileKey];
+          if (file) {
+            const { fileUrl, type, mimetype } = file as MessageFileDto;
+            await instance.sendMediaUrl(
+              phoneNumber,
+              fileUrl,
+              type,
+              mimetype,
+              textMessage,
+            );
+          } else await instance.sendText(phoneNumber, textMessage);
+        } catch (error) {
+          messageError.push({
+            phoneNumber,
+            error,
+          });
+        }
       }
+
+      if (index + 1 < contacts.length)
+        await messageDelay(
+          generateRandomSecondsBetween(minSeconds, maxSeconds),
+        );
     }
 
     return messageError;
   }
 
-  async sendTextMessage(key: string, message: MessageDto) {
+  async sendText(key: string, message: MessageDto) {
     const { phoneNumber, textMessage } = message;
-    const responseWsp = await getInstance(key).sendTextMessage(
+    const responseWsp = await getInstance(key).sendText(
       phoneNumber,
       textMessage,
     );
@@ -48,29 +67,39 @@ export class MessageService {
     return responseWsp;
   }
 
-  async sendImageMessage(key: string, file: any, messageImage: MessageImageDto) {
-    const { phoneNumber, caption, textMessage } = messageImage;
-    console.log({ phoneNumber, file, caption, textMessage });
-    const responseWsp = await getInstance(key).sendMediaMessage(
+  async sendImage(key: string, file: any, messageImage: MessageImageDto) {
+    const { phoneNumber, textMessage } = messageImage;
+    const responseWsp = await getInstance(key).sendMedia(
       phoneNumber,
       file,
       'image',
-      caption,
       textMessage,
     );
 
     return responseWsp;
   }
 
-  async sendDocumentMessage(key: string, file: any, message: MessageDocumentDto) {
-    const { phoneNumber, fileName, caption, textMessage } = message;
-    const responseWsp = await getInstance(key).sendMediaMessage(
+  async sendDocument(key: string, file: any, message: MessageDocumentDto) {
+    const { phoneNumber, fileName, textMessage } = message;
+    const responseWsp = await getInstance(key).sendMedia(
       phoneNumber,
       file,
       'document',
-      caption,
       textMessage,
       fileName,
+    );
+
+    return responseWsp;
+  }
+
+  async sendMediaUrl(key: string, message: MessageMediaUrlDto) {
+    const { phoneNumber, url, type, mimetype, textMessage } = message;
+    const responseWsp = await getInstance(key).sendMediaUrl(
+      phoneNumber,
+      url,
+      type,
+      mimetype,
+      textMessage,
     );
 
     return responseWsp;

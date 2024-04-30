@@ -7,11 +7,5 @@ export class MessageDocumentDto extends MessageDto {
   @IsString()
   @MinLength(2)
   @IsOptional()
-  caption?: string;
-
-  @ApiProperty()
-  @IsString()
-  @MinLength(2)
-  @IsOptional()
   fileName: string;
 }
