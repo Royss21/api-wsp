@@ -1,7 +1,7 @@
 import makeWASocket, {
   ConnectionState,
   SocketConfig,
-  WABrowserDescription,
+  WABrowserDescription
 } from '@adiwajshing/baileys';
 
 import axios, { AxiosInstance } from 'axios';
@@ -9,12 +9,6 @@ import { Collection, Connection } from 'mongoose';
 import * as QRCode from 'qrcode';
 
 import { CreateInstanceDto } from 'src/api/instance/dtos';
-import {
-  CONNECTION,
-  WSP_CONNECTING,
-  WSP_CONNECTION_CLOSE,
-  WSP_CONNECTION_OPEN,
-} from 'src/common/constants';
 
 import { envs } from '../config';
 import { mongoAuthState } from '../helpers/db';
@@ -22,8 +16,10 @@ import { getWhatsAppId } from '../helpers/whatsapp';
 import { IWhatsAppAuthState } from '../interfaces';
 import { WspGlobalInstance } from './whatsapp-global';
 import { WhatsAppInstance } from './whatsapp-instance';
+import { WebhookSendType, WhatsAppConnection } from 'src/common/enums';
+import { IWhatsApp } from '../interfaces/whatsapp.interface';
 
-export class WhatsApp {
+export class WhatsApp implements IWhatsApp {
   socketConfig: SocketConfig;
   key: string;
   allowWebhook: boolean;
@@ -167,8 +163,8 @@ export class WhatsApp {
   ) {
     const whatsAppId = await getWhatsAppId(this.instance, phoneNumber);
     const data = await this.instance.sock?.sendMessage(whatsAppId, {
-      mimetype: file.mimetype,
       [type]: file.buffer,
+      mimetype: file.mimetype,
       caption: textMessage || '',
       ptt: type === 'audio',
       fileName: fileName || file.originalname || '',
@@ -180,16 +176,18 @@ export class WhatsApp {
     phoneNumber: string,
     url: string,
     type: string,
-    mimeType: string,
-    textMessage?: string,
+    mimetype: string,
+    fileName?: string,
+    textMessage?: string,  
   ) {
     const whatsAppId = await getWhatsAppId(this.instance, phoneNumber);
     const data = await this.instance.sock?.sendMessage(whatsAppId, {
       [type]: {
         url: url,
       },
+      mimetype: mimetype,
       caption: textMessage || '',
-      mimetype: mimeType,
+      fileName: fileName || '',
     });
     return data;
   }
@@ -197,9 +195,9 @@ export class WhatsApp {
   private async _connectionUpdate(update: Partial<ConnectionState>) {
     const { connection, lastDisconnect, qr } = update;
 
-    if (connection === WSP_CONNECTING) return;
+    if (connection === WhatsAppConnection.CONNECTING) return;
 
-    if (connection === WSP_CONNECTION_CLOSE) {
+    if (connection === WhatsAppConnection.CLOSE) {
       this.instance.online = false;
       this.connectionRetries++;
 
@@ -211,12 +209,12 @@ export class WhatsApp {
       } else if (lastDisconnect?.error) {
         await this.init();
       }
-    } else if (connection === WSP_CONNECTION_OPEN) {
+    } else if (connection === WhatsAppConnection.OPEN) {
       this.instance.online = true;
       this.connectionRetries = 0;
     }
 
-    await this.sendWebhook(CONNECTION, {
+    await this.sendWebhook(WebhookSendType.CONNECTION, {
       connection: connection,
     });
 
@@ -232,7 +230,7 @@ export class WhatsApp {
 
   private _disconnectInstance() {
     const instance = WspGlobalInstance[this.key].instance;
-
+    
     instance?.sock?.ev?.removeAllListeners();
     instance?.sock?.ws?.close();
     delete WspGlobalInstance[this.key];

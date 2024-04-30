@@ -4,7 +4,9 @@ import { envs } from 'src/core/config';
 import { WhatsApp } from 'src/core/whatsapp/whatsapp';
 import { WspGlobalInstance } from 'src/core/whatsapp/whatsapp-global';
 
-export const restoreInstances = async (connection: Connection) => {
+export const restoreInstances = async (
+  connection: Connection,
+): Promise<any[]> => {
   const restoredSessions = new Array();
   const instanceCollections = [];
 

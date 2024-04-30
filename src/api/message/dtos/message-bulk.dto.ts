@@ -1,6 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsPositive,
+  IsString,
+} from 'class-validator';
+import { TypeMessage, TypeMessageList } from '../enums';
 
 export class MessageBulkDto {
   @ApiProperty()
@@ -37,7 +45,10 @@ export class MessageFileDto {
 
   @ApiProperty()
   @IsString()
-  type: string;
+  @IsEnum(TypeMessageList, {
+    message: `Valid values are ${TypeMessageList}`,
+  })
+  type: TypeMessage;
 
   @ApiProperty()
   @IsString()

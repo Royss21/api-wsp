@@ -4,10 +4,12 @@ import { ApiTags } from '@nestjs/swagger';
 
 import { CustomUploadFile } from './decorator';
 import {
+  MessageAudioDto,
   MessageBulkDto,
   MessageDocumentDto,
   MessageImageDto,
   MessageMediaUrlDto,
+  MessageVideoDto,
 } from './dtos';
 import { MessageDto } from './dtos/message.dto';
 import { MessageService } from './message.service';
@@ -37,7 +39,7 @@ export class MessageController {
   @UseInterceptors(FilesInterceptor('file'))
   async sendImage(
     @Param('key') key: string,
-    @CustomUploadFile(5, 'image/*')
+    @CustomUploadFile(5, 'image/(png|jpg|jpeg|gif)')
     file: Array<Express.Multer.File>,
     @Body() messageImageDto: MessageImageDto,
   ) {
@@ -54,13 +56,43 @@ export class MessageController {
   @UseInterceptors(FilesInterceptor('file'))
   async sendDocument(
     @Param('key') key: string,
-    @CustomUploadFile(50, '') file: Array<Express.Multer.File>,
+    @CustomUploadFile(50, 'application/*') file: Array<Express.Multer.File>,
     @Body() messageDocumentDto: MessageDocumentDto,
   ) {
     const data = await this.messageService.sendDocument(
       key,
       file[0],
       messageDocumentDto,
+    );
+    return { data };
+  }
+
+  @Post(':key/send-video')
+  @UseInterceptors(FilesInterceptor('file'))
+  async sendVideo(
+    @Param('key') key: string,
+    @CustomUploadFile(200, 'video/mp4') file: Array<Express.Multer.File>,
+    @Body() messageVideoDto: MessageVideoDto,
+  ) {
+    const data = await this.messageService.sendVideo(
+      key,
+      file[0],
+      messageVideoDto,
+    );
+    return { data };
+  }
+
+  @Post(':key/send-audio')
+  @UseInterceptors(FilesInterceptor('file'))
+  async sendAudio(
+    @Param('key') key: string,
+    @CustomUploadFile(100, 'audio/mpeg') file: Array<Express.Multer.File>,
+    @Body() messageAudioDto: MessageAudioDto,
+  ) {
+    const data = await this.messageService.sendAudio(
+      key,
+      file[0],
+      messageAudioDto,
     );
     return { data };
   }

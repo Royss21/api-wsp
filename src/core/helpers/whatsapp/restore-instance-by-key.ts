@@ -7,9 +7,11 @@ import { WspGlobalInstance } from 'src/core/whatsapp/whatsapp-global';
 export const restoreInstanceByKey = async (
   key: string,
   connection: Connection,
-) => {
+): Promise<string> => {
   const result = await connection.listCollections();
-  const collection = result.find((c) => c.name.startsWith(envs.instance_name_schema));
+  const collection = result.find((c) =>
+    c.name.startsWith(envs.instance_name_schema),
+  );
 
   if (!collection)
     throw new NotFoundException(
