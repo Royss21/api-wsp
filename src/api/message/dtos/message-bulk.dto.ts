@@ -8,7 +8,8 @@ import {
   IsPositive,
   IsString,
 } from 'class-validator';
-import { TypeMessage, TypeMessageList } from '../enums';
+import { MessageType } from '../enums/message-type.enum';
+import { MimeTypeImageList } from '../enums';
 
 export class MessageBulkDto {
   @ApiProperty()
@@ -45,13 +46,16 @@ export class MessageFileDto {
 
   @ApiProperty()
   @IsString()
-  @IsEnum(TypeMessageList, {
-    message: `Valid values are ${TypeMessageList}`,
+  @IsEnum([MessageType.IMAGE], {
+    message: `Valid values are ${[MessageType.IMAGE]}`,
   })
-  type: TypeMessage;
+  type: MessageType;
 
   @ApiProperty()
   @IsString()
+  @IsEnum(MimeTypeImageList.map((m) => `image/${m}`), {
+    message: `Valid values are ${MimeTypeImageList.map((m) => `image/${m}`)}`,
+  })
   mimetype: string;
 
   @ApiProperty()

@@ -2,18 +2,18 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsOptional, IsString, MinLength } from 'class-validator';
 
-export class MessageDto {
+export class MessageKeyDto {
   @ApiProperty({
-    type: String,
+    type: String
   })
   @IsString()
   @Type(() => String)
-  phoneNumber: string;
+  remoteJid: string;
 
   @ApiProperty({
-    type: String,
+    type: String
   })
   @IsString()
   @Type(() => String)
-  textMessage: string;
+  id: string;
 }

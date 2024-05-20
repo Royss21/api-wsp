@@ -1,11 +1,10 @@
-import { IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
-import { MessageDto } from './message.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import { MessageType } from '@adiwajshing/baileys';
-import { TypeMessageList } from '../enums';
+import { IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
+import { MessageType } from '../enums/message-type.enum';
+import { MessageDto } from './message.dto';
+import { MimeTypeImageList } from '../enums';
 
 export class MessageMediaUrlDto extends MessageDto {
-  
   @ApiProperty()
   @IsString()
   @MinLength(2)
@@ -13,14 +12,16 @@ export class MessageMediaUrlDto extends MessageDto {
 
   @ApiProperty()
   @IsString()
-  @IsEnum(TypeMessageList, {
-    message: `Valid values are ${TypeMessageList}`,
-  })
+  // @IsEnum([MessageType.IMAGE], {
+  //   message: `Valid values are ${[MessageType.IMAGE]}`,
+  // })
   type: MessageType;
 
   @ApiProperty()
   @IsString()
-  @MinLength(2)
+  // @IsEnum(MimeTypeImageList, {
+  //   message: `Valid values are ${MimeTypeImageList}`,
+  // })
   mimetype: string;
 
   @ApiProperty()

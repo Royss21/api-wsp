@@ -1,7 +1,7 @@
 import makeWASocket, {
   ConnectionState,
   SocketConfig,
-  WABrowserDescription
+  WABrowserDescription,
 } from '@adiwajshing/baileys';
 
 import axios, { AxiosInstance } from 'axios';
@@ -10,14 +10,14 @@ import * as QRCode from 'qrcode';
 
 import { CreateInstanceDto } from 'src/api/instance/dtos';
 
+import { WebhookSendType, WhatsAppConnection } from 'src/common/enums';
 import { envs } from '../config';
 import { mongoAuthState } from '../helpers/db';
 import { getWhatsAppId } from '../helpers/whatsapp';
 import { IWhatsAppAuthState } from '../interfaces';
+import { IWhatsApp } from '../interfaces/whatsapp.interface';
 import { WspGlobalInstance } from './whatsapp-global';
 import { WhatsAppInstance } from './whatsapp-instance';
-import { WebhookSendType, WhatsAppConnection } from 'src/common/enums';
-import { IWhatsApp } from '../interfaces/whatsapp.interface';
 
 export class WhatsApp implements IWhatsApp {
   socketConfig: SocketConfig;
@@ -63,7 +63,7 @@ export class WhatsApp implements IWhatsApp {
     } as IWhatsAppAuthState;
     this.socketConfig.auth = this.authState.state;
     this.socketConfig.browser = Object.values({
-      platform: envs.client_platform || 'Whatsapp MD',
+      platform: this.key.toUpperCase(),
       browser: envs.client_browser || 'Chrome',
       version: envs.client_version || '4.0.0',
     }) as WABrowserDescription;
@@ -178,7 +178,7 @@ export class WhatsApp implements IWhatsApp {
     type: string,
     mimetype: string,
     fileName?: string,
-    textMessage?: string,  
+    textMessage?: string,
   ) {
     const whatsAppId = await getWhatsAppId(this.instance, phoneNumber);
     const data = await this.instance.sock?.sendMessage(whatsAppId, {
@@ -229,8 +229,8 @@ export class WhatsApp implements IWhatsApp {
   }
 
   private _disconnectInstance() {
-    const instance = WspGlobalInstance[this.key].instance;
-    
+    const instance = WspGlobalInstance[this.key]?.instance;
+
     instance?.sock?.ev?.removeAllListeners();
     instance?.sock?.ws?.close();
     delete WspGlobalInstance[this.key];

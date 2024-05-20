@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WhatsApp QR</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="row m-5">
+      <div class="col-lg-6">
+        <form>
+          <div class="form-group mb-2">
+            <label for="exampleFormControlInput1">Nombre canal</label>
+            <input
+              class="form-control form-control-sm txtNombreCanal"
+              type="text"
+            />
+            <span
+              class="badge badge-pill badge-danger spMensaje"
+              style="background-color: rgb(173, 37, 37)"
+            ></span>
+          </div>
+          <button type="button" class="btn btn-primary btn-sm btnCrearCanal">
+            Crear
+          </button>
+        </form>
+        <div class="mt-2">
+          <img src="" alt="" class="canalQr" />
+          <p class="nombreCanalCreado"></p>
+        </div>
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      const urlApi = 'http://localhost:3000';
+      const txtNombreCanal = document.querySelector('.txtNombreCanal');
+      const btnCrearCanal = document.querySelector('.btnCrearCanal');
+      const spMessage = document.querySelector('.spMensaje');
+      const canalQr = document.querySelector('.canalQr');
+      const nombreCanalCreado = document.querySelector('.nombreCanalCreado');
+
+      const messageDelay = (seconds) =>
+        new Promise((resolve) => setTimeout(resolve, seconds));
+
+      btnCrearCanal.addEventListener('click', async () => {
+        if (!txtNombreCanal.value) {
+            spMessage.textContent = 'El canal es obligatorio';
+            return;
+        }
+
+        if(txtNombreCanal.value.length <= 1  || txtNombreCanal.value.length > 8){
+            spMessage.textContent = 'Debe contener minimo 1 y maximo 8 caracteres';
+            return;
+        }
+
+        spMessage.textContent = '';
+        canalQr.src = '';
+        btnCrearCanal.disabled = true;
+        nombreCanalCreado.textContent = '';
+
+        try {
+          const instance = {
+            key: txtNombreCanal.value,
+            webhookUrl: null,
+            connectionRetry: 3,
+          };
+
+          const response = await fetch(`${urlApi}/instances`, {
+            method: 'POST',
+            body: JSON.stringify(instance),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          const data = await response.json();
+          const { key } = data;
+          await messageDelay(2500);
+          const responseQr = await await fetch(
+            `${urlApi}/instances/${key}/qrbase64`,
+          );
+          const dataQr = await responseQr.json();
+          canalQr.src = dataQr.qr;
+          btnCrearCanal.disabled = false;
+          nombreCanalCreado.textContent = key;
+        } catch (error) {
+          spMessage.textContent = error.message;
+          btnCrearCanal.disabled = false;
+          canalQr.src = '';
+          nombreCanalCreado.textContent = '';
+          console.log({ error });
+        }
+      });
+    </script>
+  </body>
+</html>

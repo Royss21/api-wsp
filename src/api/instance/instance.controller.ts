@@ -5,15 +5,18 @@ import { CreateInstanceDto } from './dtos';
 import { envs } from 'src/core/config';
 
 @ApiTags('Instance')
-@Controller('instance')
+@Controller('instances')
 export class InstanceController {
   constructor(private readonly instanceService: InstanceService) {}
 
   @Post()
   async create(@Body() instanceDto: CreateInstanceDto) {
-    instanceDto = { ...instanceDto, key: `${envs.instance_name_schema}-${instanceDto.key}` }
+    instanceDto = {
+      ...instanceDto,
+      key: `${envs.instance_name_schema}_${instanceDto.key}`,
+    };
     const instanceKey = await this.instanceService.create(instanceDto);
-    return instanceKey;
+    return { key: instanceKey };
   }
 
   @Get(':key/qrbase64')

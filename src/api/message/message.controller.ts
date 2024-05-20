@@ -9,10 +9,17 @@ import {
   MessageDocumentDto,
   MessageImageDto,
   MessageMediaUrlDto,
+  MessageReactDto,
   MessageVideoDto,
 } from './dtos';
 import { MessageDto } from './dtos/message.dto';
 import { MessageService } from './message.service';
+import {
+  MimeTypeAudioList,
+  MimeTypeDocumentList,
+  MimeTypeImageList,
+  MimeTypeVideoList,
+} from './enums';
 
 @ApiTags('Messages')
 @Controller('messages')
@@ -39,7 +46,7 @@ export class MessageController {
   @UseInterceptors(FilesInterceptor('file'))
   async sendImage(
     @Param('key') key: string,
-    @CustomUploadFile(5, 'image/(png|jpg|jpeg|gif)')
+    @CustomUploadFile(5, `image/(${MimeTypeImageList.join('|')})`)
     file: Array<Express.Multer.File>,
     @Body() messageImageDto: MessageImageDto,
   ) {
@@ -56,7 +63,8 @@ export class MessageController {
   @UseInterceptors(FilesInterceptor('file'))
   async sendDocument(
     @Param('key') key: string,
-    @CustomUploadFile(50, 'application/*') file: Array<Express.Multer.File>,
+    @CustomUploadFile(50, `application/${MimeTypeDocumentList.join('|')}`)
+    file: Array<Express.Multer.File>,
     @Body() messageDocumentDto: MessageDocumentDto,
   ) {
     const data = await this.messageService.sendDocument(
@@ -71,7 +79,8 @@ export class MessageController {
   @UseInterceptors(FilesInterceptor('file'))
   async sendVideo(
     @Param('key') key: string,
-    @CustomUploadFile(200, 'video/mp4') file: Array<Express.Multer.File>,
+    @CustomUploadFile(200, `video/${MimeTypeVideoList.join('|')}`)
+    file: Array<Express.Multer.File>,
     @Body() messageVideoDto: MessageVideoDto,
   ) {
     const data = await this.messageService.sendVideo(
@@ -86,7 +95,8 @@ export class MessageController {
   @UseInterceptors(FilesInterceptor('file'))
   async sendAudio(
     @Param('key') key: string,
-    @CustomUploadFile(100, 'audio/mpeg') file: Array<Express.Multer.File>,
+    @CustomUploadFile(100, `audio/${MimeTypeAudioList.join('|')}`)
+    file: Array<Express.Multer.File>,
     @Body() messageAudioDto: MessageAudioDto,
   ) {
     const data = await this.messageService.sendAudio(
@@ -103,6 +113,15 @@ export class MessageController {
     @Body() messageMediaUrl: MessageMediaUrlDto,
   ) {
     const data = await this.messageService.sendMediaUrl(key, messageMediaUrl);
+    return { data };
+  }
+
+  @Post(':key/react')
+  async react(
+    @Param('key') key: string,
+    @Body() messageReact: MessageReactDto,
+  ) {
+    const data = await this.messageService.reactMessage(key, messageReact);
     return { data };
   }
 }

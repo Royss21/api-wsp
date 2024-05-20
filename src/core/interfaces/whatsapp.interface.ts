@@ -1,9 +1,10 @@
-import { ConnectionState, SocketConfig } from '@adiwajshing/baileys';
-import { IWhatsAppAuthState } from './whatsapp-auth-state.interface';
-import { Collection } from 'mongoose';
-import { WhatsAppInstance } from '../whatsapp/whatsapp-instance';
+import { SocketConfig } from '@adiwajshing/baileys';
 import { AxiosInstance } from 'axios';
+import { Collection } from 'mongoose';
+import { MessageKeyDto } from 'src/api/message/dtos/message-key.dto';
 import { WebhookSendType } from 'src/common/enums';
+import { WhatsAppInstance } from '../whatsapp/whatsapp-instance';
+import { IWhatsAppAuthState } from './whatsapp-auth-state.interface';
 
 export interface IWhatsApp {
   socketConfig: SocketConfig;
@@ -32,6 +33,11 @@ export interface IWhatsApp {
     type: string,
     mimetype: string,
     fileName: string,
-    textMessage?: string, 
+    textMessage?: string,
   ) => Promise<any>;
+  // reactMessage: (
+  //   phoneNumber: string,
+  //   textMessage: string,
+  //   key: MessageKeyDto,
+  // ) => Promise<any>;
 }

@@ -10,10 +10,11 @@ import {
   MessageFileDto,
   MessageImageDto,
   MessageMediaUrlDto,
+  MessageReactDto,
   MessageVideoDto,
 } from './dtos';
+import { MessageType } from './enums';
 import { generateRandomSecondsBetween, messageDelay } from './helpers';
-import { TypeMessage } from './enums';
 
 @Injectable()
 export class MessageService {
@@ -81,7 +82,7 @@ export class MessageService {
     const responseWsp = await getInstance(key).sendMedia(
       phoneNumber,
       file,
-      TypeMessage.IMAGE,
+      MessageType.IMAGE,
       textMessage,
     );
 
@@ -93,7 +94,7 @@ export class MessageService {
     const responseWsp = await getInstance(key).sendMedia(
       phoneNumber,
       file,
-      TypeMessage.DOCUMENTO,
+      MessageType.DOCUMENTO,
       textMessage,
       fileName,
     );
@@ -106,7 +107,7 @@ export class MessageService {
     const responseWsp = await getInstance(key).sendMedia(
       phoneNumber,
       file,
-      TypeMessage.VIDEO,
+      MessageType.VIDEO,
       textMessage,
     );
 
@@ -118,7 +119,7 @@ export class MessageService {
     const responseWsp = await getInstance(key).sendMedia(
       phoneNumber,
       file,
-      TypeMessage.AUDIO,
+      MessageType.AUDIO,
       textMessage,
     );
 
@@ -137,5 +138,15 @@ export class MessageService {
     );
 
     return responseWsp;
+  }
+
+  async reactMessage(key: string, messageReact: MessageReactDto) {
+    // const { phoneNumber, textMessage, messageKey } = messageReact;
+    // const responseWsp = await getInstance(key).reactMessage(
+    //   phoneNumber,
+    //   textMessage,
+    //   messageKey,
+    // );
+    // return responseWsp;
   }
 }
