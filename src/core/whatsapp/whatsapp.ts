@@ -8,22 +8,21 @@ import axios, { AxiosInstance } from 'axios';
 import { Collection, Connection } from 'mongoose';
 import * as QRCode from 'qrcode';
 
-import { CreateInstanceDto } from 'src/api/instance/dtos';
 
 import { WebhookSendType, WhatsAppConnection } from 'src/common/enums';
-import { envs } from '../config';
-import { mongoAuthState } from '../helpers/db';
+import { envs } from 'src/config';
 import { getWhatsAppId } from '../helpers/whatsapp';
-import { IWhatsAppAuthState } from '../interfaces';
-import { IWhatsApp } from '../interfaces/whatsapp.interface';
+import { mongoAuthState } from './db';
+import { IWhatsApp, IWhatsAppAuthState } from './interfaces';
 import { WspGlobalInstance } from './whatsapp-global';
 import { WhatsAppInstance } from './whatsapp-instance';
+import { CreateInstanceDto } from 'src/api/instance/dtos/input';
 
 export class WhatsApp implements IWhatsApp {
   socketConfig: SocketConfig;
   key: string;
   allowWebhook: boolean;
-  webhook?: string;
+  webhook: string;
   authState: IWhatsAppAuthState;
   collection: Collection;
   instance: WhatsAppInstance;
@@ -35,13 +34,11 @@ export class WhatsApp implements IWhatsApp {
     private connection: Connection,
     instanceDto: CreateInstanceDto,
   ) {
-    const { key, webhookUrl, connectionRetry } = instanceDto;
+    const { key, webhookUrl } = instanceDto;
     this.key = key;
     this.webhook = webhookUrl ? webhookUrl : envs.webhook_url;
     this.connectionRetries = 0;
-    this.maxConnectionRetries = connectionRetry
-      ? connectionRetry
-      : envs.instance_max_connection_retries;
+    this.maxConnectionRetries = envs.instance_max_connection_retries;
     this.allowWebhook = envs.webhook_enabled;
     this.instance = new WhatsAppInstance(key);
     this.instance.customWebhook = this.webhook;

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { InstanceService } from './instance.service';
-import { InstanceController } from './instance.controller';
+import { InstanceController } from './controllers/instance.controller';
+import { InstanceService } from './services';
 
 @Module({
   controllers: [InstanceController],

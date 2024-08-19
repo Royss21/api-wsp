@@ -20,7 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@adiwajshing/baileys": "https://github.com/WhiskeySockets/Baileys.git",
+    "@adiwajshing/baileys": "https://github.com/WhiskeySockets/Baileys.git#v6.7.5",
     "@adiwajshing/keyed-db": "^0.2.4",
     "@nestjs/axios": "^3.0.2",
     "@nestjs/common": "^10.0.0",
@@ -30,7 +30,6 @@
     "@nestjs/mongoose": "^10.0.4",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/serve-static": "^4.0.2",
-    "@nestjs/swagger": "^7.3.0",
     "axios": "^1.6.8",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",

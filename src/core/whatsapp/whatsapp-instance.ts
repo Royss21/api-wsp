@@ -1,4 +1,4 @@
-import { IWhatsAppInstance } from '../interfaces/whatsapp-instance.interface';
+import { IWhatsAppInstance } from "./interfaces/whatsapp-instance.interface";
 
 export class WhatsAppInstance implements IWhatsAppInstance {
   key: string = '';

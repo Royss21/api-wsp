@@ -1,6 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
 import { Connection } from 'mongoose';
-import { envs } from 'src/core/config';
 import { WhatsApp } from 'src/core/whatsapp/whatsapp';
 import { WspGlobalInstance } from 'src/core/whatsapp/whatsapp-global';
 
@@ -9,9 +8,7 @@ export const restoreInstanceByKey = async (
   connection: Connection,
 ): Promise<string> => {
   const result = await connection.listCollections();
-  const collection = result.find((c) =>
-    c.name.startsWith(envs.instance_name_schema),
-  );
+  const collection = result.find((c) => c.name === key);
 
   if (!collection)
     throw new NotFoundException(
